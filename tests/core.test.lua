@@ -1,6 +1,10 @@
 -- Exercise admission decisions with a mocked Cfx boundary; this is not a client join test.
-local handlers, emitted, dropped = {}, {}, {}
+local handlers, emitted, dropped, commands, messages = {}, {}, {}, {}, {}
 local allowed, ready, dbOk, reads = false, true, true, 0
+local missingExport, failedExport = false, false
+local originalPrint = print
+function print(message) messages[#messages + 1] = message end
+function RegisterCommand(name, callback, restricted) assert(restricted); commands[name] = callback end
 local identity = 'license:' .. string.rep('a', 40)
 function AddEventHandler(name, callback) handlers[name] = callback end
 RegisterNetEvent = AddEventHandler
@@ -15,8 +19,11 @@ function DropPlayer(player) dropped[#dropped + 1] = player end
 promise = {new = function() return {resolve = function(self, value) self.value = value end} end}
 Citizen = {Await = function(p) assert(p.value, 'Mock requires a settled callback'); return p.value end}
 exports = {ofm_db = {
-    isReady = function() return ready end,
-    openAccount = function(_, _, callback) reads = reads + 1; callback(dbOk, {id = '42'}) end
+    isReady = function() if missingExport then error('Resource stopped') end; return ready end,
+    openAccount = function(_, _, callback)
+        if failedExport then error('Resource export failed') end
+        reads = reads + 1; callback(dbOk, {id = '42'})
+    end
 }}
 dofile('resources/ofm_core/server.lua')
 local function connect(player)
@@ -32,6 +39,13 @@ end
 assert(connect(1) and reads == 0, 'Unauthorized players must not access SQL')
 allowed, ready = true, false
 assert(connect(1) and reads == 0, 'Unavailable SQL must refuse admission')
+ready, missingExport = true, true
+assert(connect(1) and reads == 0, 'A stopped database resource must refuse admission')
+commands.ofm_status(0)
+assert(messages[#messages] == '[ofm_core] database=unavailable profiles=0')
+missingExport, failedExport = false, true
+assert(connect(1), 'Export failure must settle the deferral and release admission')
+failedExport = false
 ready, dbOk = true, false
 assert(connect(1), 'Failed profile load must reject admission')
 dbOk = true
@@ -42,6 +56,11 @@ handlers.playerJoining('1')
 handlers['ofm:requestSpawn']()
 handlers['ofm:requestSpawn']()
 assert(#emitted == 1 and emitted[1][2] == 10 and emitted[1][3] == '42', 'Only admitted profile may spawn once')
+commands.ofm_status(0)
+assert(messages[#messages] == '[ofm_core] database=ready profiles=1')
+local count = #messages
+commands.ofm_status(10)
+assert(#messages == count, 'Status diagnostics must be console-only')
 source = 99
 handlers['ofm:requestSpawn']()
 assert(#emitted == 1, 'Unadmitted client must not trigger a spawn')
@@ -52,4 +71,4 @@ source = 11
 handlers.playerJoining('3')
 handlers.onResourceStop('ofm_core')
 assert(#dropped == 1 and dropped[1] == '11', 'Core restart must require profile admission again')
-print('Core admission checks passed: access, SQL failure, duplicate identity, join mapping, spawn replay and reconnect.')
+originalPrint('Core admission checks passed: access, SQL/resource failure, console status, duplicate identity, join mapping, spawn replay and reconnect.')

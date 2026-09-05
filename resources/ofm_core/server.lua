@@ -1,5 +1,19 @@
 local profiles, identities, spawned = {}, {}, {}
 
+local function databaseReady()
+    local ok, ready = pcall(function() return exports.ofm_db:isReady() end)
+    return ok and ready == true
+end
+
+RegisterCommand('ofm_status', function(player)
+    if player ~= 0 then return end
+    local count = 0
+    for _, profile in pairs(profiles) do
+        if profile.account then count = count + 1 end
+    end
+    print(('[ofm_core] database=%s profiles=%d'):format(databaseReady() and 'ready' or 'unavailable', count))
+end, true)
+
 local function release(player)
     local profile = profiles[player]
     if profile and identities[profile.identity] == player then
@@ -21,7 +35,7 @@ AddEventHandler('playerConnecting', function(_, _, deferrals)
         deferrals.done('A valid, unused game identity is required. Disconnect any other active session and retry.')
         return
     end
-    if not exports.ofm_db:isReady() then
+    if not databaseReady() then
         deferrals.done('The server is not ready. Please try again shortly.')
         return
     end
@@ -36,7 +50,8 @@ AddEventHandler('playerConnecting', function(_, _, deferrals)
         result:resolve({ ok = ok, account = account })
     end
     SetTimeout(15000, function() finish(false) end)
-    exports.ofm_db:openAccount(identity, finish)
+    local invoked = pcall(function() exports.ofm_db:openAccount(identity, finish) end)
+    if not invoked then finish(false) end
     local answer = Citizen.Await(result)
     if not answer.ok or not GetPlayerName(player) or not profiles[player] then
         release(player)
@@ -64,7 +79,7 @@ AddEventHandler('playerDropped', function() release(tostring(source)) end)
 RegisterNetEvent('ofm:requestSpawn', function()
     local player = tostring(source)
     if not profiles[player] or not profiles[player].account or spawned[player] then return end
-    if not exports.ofm_db:isReady() then return end
+    if not databaseReady() then return end
     spawned[player] = true
     TriggerClientEvent('ofm:spawnTestPlayer', tonumber(player), profiles[player].account.id)
 end)

@@ -63,6 +63,17 @@ test('MariaDB persistence and schema safety', { skip: !process.env.OFM_TEST_DB_C
     assert.ok((await database.openAccount(identity)).id);
   });
 
+  await t.test('a malformed partial table cannot advance the schema marker', async () => {
+    await database.pool.query('DROP TABLE ofm_accounts');
+    await database.pool.query('CREATE TABLE ofm_accounts (id BIGINT PRIMARY KEY)');
+    await database.pool.query('UPDATE ofm_schema SET version = 0');
+    await assert.rejects(database.initialize({ resume: true }), { code: 'ER_BAD_FIELD_ERROR' });
+    const [[marker]] = await database.pool.query('SELECT version FROM ofm_schema WHERE id = 1');
+    assert.equal(marker.version, 0, 'Failed migration must remain incomplete');
+    await database.pool.query('DROP TABLE ofm_accounts');
+    await database.initialize({ resume: true });
+  });
+
   await t.test('an unrelated database is not initialized', async () => {
     await database.pool.query('DROP TABLE ofm_accounts');
     await database.pool.query('DROP TABLE ofm_schema');
