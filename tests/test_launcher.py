@@ -104,6 +104,17 @@ class LauncherTests(unittest.TestCase):
         self.assertEqual(other.read_text(), 'preserve')
 
     @unittest.skipUnless(os.name == 'posix', 'POSIX process groups are required')
+    def test_console_accepts_panel_and_terminal_line_endings(self):
+        received = self.root / 'commands.txt'
+        child = (f'import sys; from pathlib import Path; '
+                 f'Path({str(received)!r}).write_text(sys.stdin.read()); raise SystemExit(7)')
+        runner = (f'import sys,os; sys.path.insert(0,{str(SCRIPTS)!r}); import launcher; '
+                  f'sys.exit(launcher.supervise([sys.executable,"-c",{child!r}],os.environ,{str(self.root)!r}))')
+        result = subprocess.run([sys.executable, '-c', runner], input=b'one\ntwo\rthree\r\n', timeout=5)
+        self.assertEqual(result.returncode, 7)
+        self.assertEqual(received.read_text(), 'one\ntwo\nthree\n')
+
+    @unittest.skipUnless(os.name == 'posix', 'POSIX process groups are required')
     def test_child_exit_status_is_preserved(self):
         self.assertEqual(launcher.supervise([sys.executable, '-c', 'raise SystemExit(7)'], os.environ, self.root), 7)
         self.assertEqual(launcher.supervise([sys.executable, '-c', 'raise SystemExit(0)'], os.environ, self.root), 1)

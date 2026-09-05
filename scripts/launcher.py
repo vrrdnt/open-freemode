@@ -7,11 +7,13 @@ import json
 import os
 from pathlib import Path
 import re
+import select
 import signal
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 
@@ -159,8 +161,38 @@ def command(app):
 
 
 def supervise(arguments, env, cwd, grace=5):
-    process = subprocess.Popen(arguments, env=env, cwd=cwd, start_new_session=True)
+    # A pipe selects Cfx's line-oriented console instead of its terminal editor,
+    # which ignores the LF that Wings appends to each submitted command.
+    process = subprocess.Popen(arguments, env=env, cwd=cwd, start_new_session=True, stdin=subprocess.PIPE)
     stopped_at = None
+    input_stopped = threading.Event()
+
+    def console_input():
+        previous_cr = False
+        try:
+            while not input_stopped.is_set():
+                if not select.select([0], [], [], 0.1)[0]:
+                    continue
+                data = os.read(0, 4096)
+                if not data:
+                    break
+                normalized = bytearray()
+                for byte in data:
+                    if byte != 10 or not previous_cr:
+                        normalized.append(10 if byte == 13 else byte)
+                    previous_cr = byte == 13
+                process.stdin.write(normalized)
+                process.stdin.flush()
+        except (OSError, ValueError):
+            pass  # Native exit/stop closes its console pipe.
+        finally:
+            try:
+                process.stdin.close()
+            except OSError:
+                pass
+
+    input_thread = threading.Thread(target=console_input, daemon=True)
+    input_thread.start()
 
     def send(sig):
         try:
@@ -187,6 +219,8 @@ def supervise(arguments, env, cwd, grace=5):
         # A monitor can exit before its children; all of that process group belongs to this launch.
         send(signal.SIGKILL)
         process.wait()
+        input_stopped.set()
+        input_thread.join(timeout=1)
         for sig, handler in previous.items():
             signal.signal(sig, handler)
 

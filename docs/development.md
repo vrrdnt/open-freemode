@@ -10,6 +10,8 @@ Pelican/Wings runs one non-root game container and controls FXServer directly. A
 
 The launcher starts the official native executable using an argument array, retaining the `citizen_dir` argument from its `run.sh`, then adds `+exec server.cfg`. A small init reaps children; the launcher forwards stop signals and enforces a five-second shutdown limit. An unsolicited process exit is a service failure, including Cfx's zero exit after an invalid license. Pelican owns crash/restart policy; stop repeated retries while correcting configuration errors.
 
+The native terminal editor ignored LF-terminated console commands in a reproduced authenticated test. Wings appends LF to submitted commands. The launcher now supplies a line-oriented stdin pipe, accepting LF, CR and CRLF input; it leaves output and signal handling intact. Authenticated LF commands and the existing CR commands passed after this change. Enter `ofm_status` without a slash in Pelican. A `Schema 2 ready.` line establishes readiness even if an earlier resource filesystem warning is present; do not grant broad filesystem permissions solely to silence that warning.
+
 The generated egg uses `^SIGTERM`. The inspected [Panel converter](https://github.com/pelican-dev/panel/blob/1ddab92795e7611ef54ca3cdf8eb6b7ebe182ba1/app/Services/Eggs/EggConfigurationService.php) maps this to a signal, and the inspected [Wings handler](https://github.com/pelican-dev/wings/blob/65422ff00f60c3e8a37d4b5c725add3d5a4b9a62/environment/docker/power.go) supports SIGTERM. These source inspections are not a test of an installed Pelican instance.
 
 ## Build inputs

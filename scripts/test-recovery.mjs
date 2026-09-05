@@ -183,9 +183,11 @@ try {
     };
     const status = async ready => {
       const marker = `[ofm_core] database=${ready ? 'ready' : 'unavailable'} profiles=0`;
-      const count = docker('logs', game).split(marker).length - 1;
-      attachment.write('ofm_status\r');
-      await waitForNewLog(marker, count);
+      for (const ending of ['\n', '\r', '\r\n']) {
+        const count = docker('logs', game).split(marker).length - 1;
+        attachment.write('ofm_status' + ending);
+        await waitForNewLog(marker, count);
+      }
     };
     await status(true);
     // Exercise the actual Lua -> JS export boundary, including nested arrays.
