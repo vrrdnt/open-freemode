@@ -1,6 +1,8 @@
 # Implementation plan and dependency decisions
 
-Status: planning, 5 September 2026. The decisions below choose a first implementation approach; they do not certify a runtime or declare a deployable release.
+Status: foundation development, 5 September 2026. The [development runbook](development.md) records implemented behavior and local evidence. P0 remains incomplete until real Enhanced/Pelican and recovery gates pass. The work packages below remain the full backlog.
+
+Implementation decisions superseding the original proposal below: use mysql2 with structured options; run FXServer directly under Pelican while embedded txAdmin compatibility is deferred; copy and verify real resource files rather than using symlinks. The pinned runtime, driver, local tests and remaining live checks are recorded in the runbook. The following oxmysql evaluation is retained as decision context, not as the installed driver.
 
 ## First implementation approach
 
@@ -48,4 +50,4 @@ P1-A reference work can run alongside foundation work. Classic onboarding allows
 
 Every deployable release ships public source, documented build inputs, the image distribution route, importable egg, migrations, generic operator instructions, release notes and its acceptance record. Publish original work through the existing repository and [publication checks](reproducibility.md#publication-checks). Private test/deployment records may establish the original operator's result, but public reproduction must not require those records or their credentials.
 
-The present planning package consists of the architecture, first-player specification, deployment specification, dependency approach and this ordered backlog. Implementation, current in-game reference capture, host inspection and execution of the acceptance gates remain future work. Completion of planning must never be described as a verified server deployment.
+The repository contains the architecture, first-player specification, deployment contract and initial foundation implementation. Current in-game reference capture, host inspection and completion of the live acceptance gates remain outstanding. Passing local foundation tests must never be described as a verified public server deployment.

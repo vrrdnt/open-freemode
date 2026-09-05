@@ -2,7 +2,9 @@
 
 A public-source project designing a GTA Online-like freemode experience for **FiveM for GTA V Enhanced**, with reproducible **Pelican** deployments.
 
-**Status: planning.** This repository contains the design, contribution rules, example configuration contract, and a secret-scanning workflow. It does not yet contain a playable gamemode, a Docker image, or an importable Pelican egg. The example settings are not an installer.
+**Status: development foundation.** The repository now contains a Dockerfile, generated Pelican egg, launcher, schema initialization, persistent test accounts and a tester-only spawn resource. Local tests cover database concurrency, configuration, process cleanup and native startup through synthetic license rejection. A real Enhanced client join and a disposable Pelican installation remain unverified. This is not a playable GTA Online recreation yet.
+
+Start with the [development runbook](docs/development.md). Pelican controls FXServer directly; embedded txAdmin is deferred because its Enhanced runtime hangs with Docker's default security profile. No Docker security overrides are required by this package.
 
 ## Project direction
 
@@ -26,8 +28,8 @@ Read the [server design](docs/design.md) for architecture and full gameplay scop
 
 ```mermaid
 flowchart LR
-    P[Pelican and Wings] --> G[Game container: FXServer, txAdmin, custom resources]
-    G --> F[(Persistent configuration and txData)]
+    P[Pelican and Wings] --> G[Game container: FXServer and custom resources]
+    G --> F[(Persistent configuration and server data)]
     G --> D[(Dedicated game database)]
     P --> H[Registered database host]
     H --- D
@@ -37,13 +39,13 @@ Operators supply their own Linux amd64 node, supported database service, network
 
 ## First implementation milestone
 
-Prove an Enhanced client can join a disposable Pelican deployment, create a persisted test profile, survive a container replacement, and recover from a matched SQL/file backup. Test txAdmin and Pelican shutdown behavior together before adding the economy.
+Prove an Enhanced client can join a disposable Pelican deployment, create a persisted test profile, survive a container replacement, and recover from a matched SQL/file backup. Verify Pelican console and shutdown behavior before adding the economy. txAdmin compatibility is deferred.
 
 Later phases add characters and progression, the first complete earn/buy/store/retrieve loop, properties and organizations, businesses, and multi-stage activities. Phasing does not imply the remaining catalogue has been dropped.
 
 ## Verification today
 
-CI scans Git history for potential secrets. It is **not** a game compatibility test. The design separates proposed behavior from implemented and runtime-verified behavior. See [contribution guidance](CONTRIBUTING.md) before publishing changes.
+CI builds the image, exercises a real disposable MariaDB, checks Lua admission decisions with mocked natives, tests launcher failure/cleanup behavior, and probes the native runtime with a synthetic key. It also scans Git history for potential secrets. These checks do **not** prove an authenticated game session. See the [current evidence and remaining gates](docs/development.md#verification) and [contribution guidance](CONTRIBUTING.md).
 
 ## License and independence
 

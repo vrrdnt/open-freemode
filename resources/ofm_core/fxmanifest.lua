@@ -1,0 +1,7 @@
+fx_version 'cerulean'
+game 'gta5'
+author 'Open Freemode contributors'
+version '0.1.0-dev'
+dependency 'ofm_db'
+server_script 'server.lua'
+client_script 'client.lua'

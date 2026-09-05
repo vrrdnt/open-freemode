@@ -1,0 +1,42 @@
+name: Foundation checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: node --test tests/resource.test.mjs
+      - run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Lua syntax and admission decisions
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          find resources -name '*.lua' -print0 | xargs -0 -n1 luac -p
+          lua tests/core.test.lua
+      - name: Real disposable MariaDB integration
+        run: node scripts/test-database.mjs
+      - name: Egg generation stays reproducible
+        run: |
+          npm run egg
+          git diff --exit-code -- pelican/egg-open-freemode.json
+      - name: Build pinned Enhanced image
+        run: docker build --platform linux/amd64 -t open-freemode:development .
+      - name: Native startup through synthetic license rejection
+        run: node scripts/test-image.mjs

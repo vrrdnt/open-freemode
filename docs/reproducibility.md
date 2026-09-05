@@ -1,6 +1,6 @@
 # Reproducibility and publication plan
 
-Status: design contract. No deployable release exists yet.
+Status: release design contract. An operator-buildable foundation now exists; see the [development runbook](development.md). No authenticated Enhanced/Pelican deployment or public production release has been certified. Embedded txAdmin is deferred; the current launcher runs FXServer directly.
 
 ## What belongs in the public repository
 
@@ -18,7 +18,7 @@ Operators supply runtime identity and credentials independently. A public image 
 
 ## Settings contract
 
-The example file describes planned fields; names may change before the first executable release. Secrets are empty and hostnames use reserved example domains. Real configuration belongs in ignored files or private Pelican settings. A `.env` file is an operator convenience; a future egg will expose the appropriate fields without assuming that Pelican automatically imports it.
+The example file describes the implemented launcher fields. Secrets are empty and hostnames use reserved example domains. Real configuration belongs in ignored files or private Pelican settings. The generated egg exposes private settings; Pelican does not automatically import a standalone `.env` file.
 
 The game receives credentials scoped to its allocated database. It does not receive Pelican administrator credentials or the Database Host provisioning account. Use separate database users, database names, txAdmin directories and ports for staging and production.
 

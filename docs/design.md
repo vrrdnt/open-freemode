@@ -1,6 +1,6 @@
 # Public FiveM server design
 
-Planning baseline: 5 September 2026. Status: design for review; no server, image, egg, or database has been deployed or runtime-tested.
+Planning baseline: 5 September 2026. Status: long-term gameplay and operations design. The [development runbook](development.md) records the initial implementation and local runtime/database evidence. No authenticated client/Pelican deployment has passed yet. Current development uses direct FXServer startup under Pelican; the txAdmin architecture below is deferred pending Enhanced container compatibility.
 
 ## Agreed direction
 

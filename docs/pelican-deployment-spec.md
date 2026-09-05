@@ -1,6 +1,8 @@
 # Pelican deployment specification
 
-Status: proposed implementation contract, 5 September 2026. This is not an importable egg or a tested operator runbook. It makes the [architecture](design.md) concrete enough to implement and test without depending on one operator's infrastructure.
+Status: original deployment contract, 5 September 2026. Use the [development runbook](development.md) for the current generated egg, operator-built image, commands and verification evidence. This document preserves the broader acceptance requirements; it is not the current startup procedure.
+
+The current implementation supersedes the txAdmin and symlink proposals below: Pelican controls FXServer directly, resource files are copied and verified against the image, and SQL options use a resource-restricted server-only ConVar. txAdmin compatibility is deferred following a reproduced Enhanced Docker hang. Migration is a documented one-shot maintenance container, not a normal egg startup choice. Local fixtures cover parts of the acceptance requirements, but none of the full DEP rows has passed on an actual Pelican instance.
 
 ## Operator workflow
 

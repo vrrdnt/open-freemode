@@ -1,0 +1,12 @@
+*
+!Dockerfile
+!package.json
+!package-lock.json
+!runtime.lock.json
+!LICENSE
+!lib/
+!lib/**
+!scripts/
+!scripts/**
+!resources/
+!resources/**
