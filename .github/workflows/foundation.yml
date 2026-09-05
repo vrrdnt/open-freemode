@@ -40,3 +40,5 @@ jobs:
         run: docker build --platform linux/amd64 -t open-freemode:development .
       - name: Native startup through synthetic license rejection
         run: node scripts/test-image.mjs
+      - name: Restore matched SQL and files into an isolated deployment
+        run: node scripts/test-recovery.mjs

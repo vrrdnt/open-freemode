@@ -1,6 +1,6 @@
 # Contributing
 
-The project is currently in design. Keep proposals aligned with current GTA Online behavior, normal economy/unlock rules, Enhanced-first compatibility, and reproducible Pelican deployment.
+The project is developing its server foundation. Keep proposals aligned with current GTA Online behavior, normal economy/unlock rules, Enhanced-first compatibility, and reproducible Pelican deployment.
 
 - Make the smallest change that serves the requested behavior. Explain assumptions and record departures from the reference experience.
 - Include dated reference evidence for prices, rewards and prerequisites. Mark unknown values rather than inventing them.

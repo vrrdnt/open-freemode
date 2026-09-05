@@ -2,7 +2,7 @@
 
 A public-source project designing a GTA Online-like freemode experience for **FiveM for GTA V Enhanced**, with reproducible **Pelican** deployments.
 
-**Status: development foundation.** The repository now contains a Dockerfile, generated Pelican egg, launcher, schema initialization, persistent test accounts and a tester-only spawn resource. Local tests cover database concurrency, configuration, process cleanup and native startup through synthetic license rejection. A real Enhanced client join and a disposable Pelican installation remain unverified. This is not a playable GTA Online recreation yet.
+**Status: development foundation.** The repository now contains a Dockerfile, generated Pelican egg, launcher, schema initialization, persistent test accounts and a tester-only spawn resource. Local tests cover authenticated Enhanced resource startup, console commands, database outage/recovery, graceful shutdown and restoration of matched SQL/files into separate storage. A real Enhanced client join and a disposable Pelican installation remain unverified. This is not a playable GTA Online recreation yet.
 
 Start with the [development runbook](docs/development.md). Pelican controls FXServer directly; embedded txAdmin is deferred because its Enhanced runtime hangs with Docker's default security profile. No Docker security overrides are required by this package.
 
@@ -45,7 +45,7 @@ Later phases add characters and progression, the first complete earn/buy/store/r
 
 ## Verification today
 
-CI builds the image, exercises a real disposable MariaDB, checks Lua admission decisions with mocked natives, tests launcher failure/cleanup behavior, and probes the native runtime with a synthetic key. It also scans Git history for potential secrets. These checks do **not** prove an authenticated game session. See the [current evidence and remaining gates](docs/development.md#verification) and [contribution guidance](CONTRIBUTING.md).
+CI builds the image, exercises a real disposable MariaDB, restores matched SQL/files into an isolated deployment, checks Lua admission decisions with mocked natives, tests launcher failure/cleanup behavior, and probes the native runtime with a synthetic key. It also scans Git history for potential secrets. Authenticated native tests run locally with a private operator-supplied key; neither path proves a game-client session. See the [current evidence and remaining gates](docs/development.md#verification) and [contribution guidance](CONTRIBUTING.md).
 
 ## License and independence
 
