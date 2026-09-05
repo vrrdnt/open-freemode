@@ -26,11 +26,13 @@ AddEventHandler('playerConnecting', function(_, _, deferrals)
     local player = tostring(source)
     deferrals.defer()
     Wait(0)
+    local identity = GetPlayerIdentifierByType(player, 'license')
     if not IsPlayerAceAllowed(player, 'ofm.join') then
-        deferrals.done('Open Freemode is in development. Access is limited to authorized testers; test progress will reset.')
+        local identifier = identity and identity:match('^license:%x+$') and #identity == 48
+            and (' Your tester identifier: ' .. identity .. '. Give this to the server administrator privately.') or ''
+        deferrals.done('Open Freemode is in development. Access is limited to authorized testers; test progress will reset.' .. identifier)
         return
     end
-    local identity = GetPlayerIdentifierByType(player, 'license')
     local previous = identity and identities[identity]
     if previous then
         local old = profiles[previous]

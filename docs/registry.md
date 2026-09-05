@@ -1,5 +1,7 @@
 # GitHub Container Registry
 
+Installing for the first time? Start with **[Fresh installation on Pelican](install.md)** for the complete empty-server/database path.
+
 The application image is published as `ghcr.io/vrrdnt/open-freemode` and requires no node-side build. It contains our application and its dependencies. On first start, the container downloads the pinned Enhanced runtime directly from Cfx, verifies its SHA-256, and caches it under the persistent `runtime` directory. Subsequent starts reuse that cache; a changed runtime pin downloads a separate version. There is still only one game container and one external database.
 
 ## Publish an update

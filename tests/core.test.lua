@@ -40,7 +40,8 @@ local function connect(player)
     assert(done)
     return errorMessage
 end
-assert(connect(1) and reads == 0, 'Unauthorized players must not access SQL')
+assert(connect(1):find('Your tester identifier: ' .. identity, 1, true) and reads == 0,
+    'Unauthorized tester receives their own verified identity without accessing SQL')
 allowed, ready = true, false
 assert(connect(1) and reads == 0, 'Unavailable SQL must refuse admission')
 ready, missingExport = true, true

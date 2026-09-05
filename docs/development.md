@@ -1,5 +1,7 @@
 # Development package
 
+For a new deployment, follow **[Fresh installation on Pelican](install.md)**. This document is the technical runbook; its recovery fixtures are not installation inputs.
+
 Status: foundation implementation, 6 September 2026. This is a disposable tester package, not a public gameplay release. Classic onboarding, character appearance storage, money, vehicles, missions and the tutorial remain to be implemented. No starter cash or business portfolio is granted. Test accounts will be reset before the lasting public economy.
 
 ## Current architecture

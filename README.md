@@ -4,7 +4,9 @@ A public-source project designing a GTA Online-like freemode experience for **Fi
 
 **Status: development foundation.** The repository now contains a Dockerfile, generated Pelican egg, launcher, schema initialization, persistent test accounts and a tester-only spawn resource. A real Enhanced client has joined the local Docker deployment and spawned at the airport. Local tests also cover database outage/recovery, console commands, graceful shutdown and restoration of matched SQL/files into separate storage. An installed Pelican deployment remains unverified. This is not a playable GTA Online recreation yet.
 
-Start with the [development runbook](docs/development.md). Pelican controls FXServer directly; embedded txAdmin is deferred because its Enhanced runtime hangs with Docker's default security profile. No Docker security overrides are required by this package.
+**Start here: [Fresh installation on Pelican](docs/install.md).** Create a new server and an empty database using the published image. No backup, imported SQL, existing test account or local build is needed.
+
+Pelican controls FXServer directly; embedded txAdmin is deferred because its Enhanced runtime hangs with Docker's default security profile. The [development runbook](docs/development.md) covers internals and testing.
 
 For deployments without node-side builds, use the GHCR image and [registry setup/update instructions](docs/registry.md). The generated egg references `ghcr.io/vrrdnt/open-freemode:dev`. The container downloads and verifies the pinned Cfx runtime on first start, then reuses its persistent cache.
 

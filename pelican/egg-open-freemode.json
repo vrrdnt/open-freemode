@@ -71,13 +71,13 @@
     },
     {
       "name": "Database host reachable from Wings",
-      "description": "Database host reachable from Wings. Configure privately; never paste credentials into Git or support logs.",
+      "description": "Database host reachable from Wings. May be blank during server creation; required before starting. Copy from the database allocated to this server.",
       "env_variable": "DB_HOST",
       "default_value": "",
       "user_viewable": false,
       "user_editable": false,
       "rules": [
-        "required",
+        "nullable",
         "string"
       ],
       "sort": 4
@@ -98,39 +98,39 @@
     },
     {
       "name": "Dedicated database name",
-      "description": "Dedicated database name. Configure privately; never paste credentials into Git or support logs.",
+      "description": "Dedicated database name. May be blank during server creation; required before starting. Copy from the database allocated to this server.",
       "env_variable": "DB_NAME",
       "default_value": "",
       "user_viewable": false,
       "user_editable": false,
       "rules": [
-        "required",
+        "nullable",
         "string"
       ],
       "sort": 6
     },
     {
       "name": "Dedicated database user",
-      "description": "Dedicated database user. Configure privately; never paste credentials into Git or support logs.",
+      "description": "Dedicated database user. May be blank during server creation; required before starting. Copy from the database allocated to this server.",
       "env_variable": "DB_USER",
       "default_value": "",
       "user_viewable": false,
       "user_editable": false,
       "rules": [
-        "required",
+        "nullable",
         "string"
       ],
       "sort": 7
     },
     {
       "name": "Dedicated database password",
-      "description": "Dedicated database password. Configure privately; never paste credentials into Git or support logs.",
+      "description": "Dedicated database password. May be blank during server creation; required before starting. Copy from the database allocated to this server.",
       "env_variable": "DB_PASSWORD",
       "default_value": "",
       "user_viewable": false,
       "user_editable": false,
       "rules": [
-        "required",
+        "nullable",
         "string"
       ],
       "sort": 8
