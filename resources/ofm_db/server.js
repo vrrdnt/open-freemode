@@ -1,4 +1,5 @@
 import { Database } from '../../lib/database.mjs';
+import { CharacterInputError } from '../../lib/appearance.mjs';
 
 let database;
 let ready = false;
@@ -20,10 +21,21 @@ exports('openAccount', (identifier, callback) => {
   );
 });
 
+for (const name of ['listCharacters', 'createCharacter']) {
+  exports(name, (...args) => {
+    const callback = args.pop();
+    if (!ready) return callback(false);
+    database[name](...args).then(
+      result => callback(true, result),
+      error => { if (!(error instanceof CharacterInputError)) unavailable(); callback(false); },
+    );
+  });
+}
+
 async function check() {
   try {
     await database.initialize();
-    if (!ready && !stopped) console.log('[ofm_db] Schema 1 ready.');
+    if (!ready && !stopped) console.log('[ofm_db] Schema 2 ready.');
     ready = !stopped;
   } catch {
     unavailable();

@@ -25,7 +25,7 @@ const egg = {
   startup: 'python3 /opt/open-freemode/scripts/launcher.py',
   config: {
     files: '{}',
-    startup: JSON.stringify({ done: '[ofm_db] Schema 1 ready.', strip_ansi: true }),
+    startup: JSON.stringify({ done: '[ofm_db] Schema 2 ready.', strip_ansi: true }),
     stop: '^SIGTERM',
   },
   scripts: { installation: {

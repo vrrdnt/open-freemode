@@ -83,6 +83,10 @@ try {
   docker(...source.gameArgs, 'python3', '/opt/open-freemode/scripts/launcher.py', 'migrate');
   const identity = 'license:' + 'a'.repeat(40);
   const account = await source.database.openAccount(identity);
+  const characters = await source.database.createCharacter(account.id, 1, {
+    version: 1, sex: 1, father: 2, mother: 23, resemblance: 4, skinMix: 6,
+    hair: 3, hairColor: 4, hairHighlight: 5, eyes: 6, features: Array(20).fill(2),
+  });
   await source.database.openAccount('license:' + 'b'.repeat(40));
   docker(...source.gameArgs, 'python3', '-c',
     "from pathlib import Path; Path('/home/container/config/operator.cfg').write_text('# recovery fixture operator settings\\n')");
@@ -95,7 +99,7 @@ try {
   const files = run(['run', '--rm', '--mount', `type=volume,src=${source.volume},dst=/home/container,readonly`,
     image, 'tar', '-C', '/home/container', '-cf', '-', 'config', 'server-data', 'txData', 'recovery']);
   const manifest = { image: docker('image', 'inspect', '--format', '{{.Id}}', image),
-    schema: 1, sqlSha256: digest(sql), filesSha256: digest(files) };
+    schema: 2, sqlSha256: digest(sql), filesSha256: digest(files) };
   writeFileSync(join(directory, 'database.sql'), sql, { mode: 0o600 });
   writeFileSync(join(directory, 'files.tar'), files, { mode: 0o600 });
   writeFileSync(join(directory, 'manifest.json'), JSON.stringify(manifest), { mode: 0o600 });
@@ -133,6 +137,7 @@ try {
 
   // Run the shipped CLI in another fresh application container, then confirm isolation.
   docker(...target.gameArgs, 'python3', '/opt/open-freemode/scripts/launcher.py', 'migrate');
+  assert.deepEqual(await target.database.listCharacters(account.id), characters, 'Restoration must retain character appearance');
   await target.database.openAccount('license:' + 'd'.repeat(40));
   assert.deepEqual(await rows(source.database), sourceAfterBackup, 'Restore operations must not mutate the source');
   if (serverKey) {
@@ -147,7 +152,7 @@ try {
       logs = docker('logs', game);
       writeFileSync(join(dirname(keyFile), 'native-test.log'), logs, { mode: 0o600 });
       assert.equal(docker('inspect', '--format', '{{.State.Running}}', game), 'true', 'Native server exited early');
-      if (logs.includes('[ofm_db] Schema 1 ready.')) break;
+      if (logs.includes('[ofm_db] Schema 2 ready.')) break;
       assert.ok(Date.now() < deadline, 'Native resources did not reach database readiness');
       await delay(500);
     } while (true);
@@ -183,12 +188,35 @@ try {
       await waitForNewLog(marker, count);
     };
     await status(true);
+    // Exercise the actual Lua -> JS export boundary, including nested arrays.
+    // Installed only after startup in this disposable fixture; never bundled.
+    const probe = `CreateThread(function()
+      SetRoutingBucketPopulationEnabled(999999, false)
+      local features = {}; for i = 1, 20 do features[i] = 2 end
+      exports.ofm_db:createCharacter('${account.id}', 2, {
+        version=1, sex=1, father=2, mother=23, resemblance=4, skinMix=6,
+        hair=3, hairColor=4, hairHighlight=5, eyes=6, features=features
+      }, function(ok, result)
+        assert(ok and #result == 2 and result[2].slot == 2)
+        assert(result[2].appearance.features[20] == 2)
+        exports.ofm_db:listCharacters('${account.id}', function(loaded, saved)
+          assert(loaded and saved[2].id == result[2].id)
+          print('Character export bridge passed.')
+        end)
+      end)
+    end)`;
+    run(['exec', '-i', game, 'python3', '-c',
+      "import sys; from pathlib import Path; root=Path('/home/container/server-data/resources/ofm_character_probe'); root.mkdir(); (root/'fxmanifest.lua').write_text(\"fx_version 'cerulean'\\ngame 'gta5'\\nserver_script 'server.lua'\\n\"); (root/'server.lua').write_text(sys.stdin.read())"], { input: probe });
+    attachment.write('refresh\r');
+    await delay(500);
+    attachment.write('ensure ofm_character_probe\r');
+    await waitForNewLog('Character export bridge passed.', 0);
     const unavailable = '[ofm_db] Database unavailable; profile admission suspended.';
     const unavailableCount = docker('logs', game).split(unavailable).length - 1;
     docker('stop', '--time', '10', target.container);
     await waitForNewLog(unavailable, unavailableCount);
     await status(false);
-    const readiness = '[ofm_db] Schema 1 ready.';
+    const readiness = '[ofm_db] Schema 2 ready.';
     let readyCount = docker('logs', game).split(readiness).length - 1;
     docker('start', target.container);
     await waitForNewLog(readiness, readyCount);

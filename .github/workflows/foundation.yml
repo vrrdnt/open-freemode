@@ -28,6 +28,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run build
       - run: node --test tests/resource.test.mjs
+      - run: node --test tests/appearance.test.mjs
       - run: python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Lua syntax and admission decisions
         run: |
@@ -35,6 +36,7 @@ jobs:
           sudo apt-get install -y -qq lua5.4
           find resources -name '*.lua' -print0 | xargs -0 -n1 luac -p
           lua tests/core.test.lua
+          lua tests/client.test.lua
       - name: Real disposable MariaDB integration
         run: node scripts/test-database.mjs
       - name: Egg generation stays reproducible

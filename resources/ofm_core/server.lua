@@ -90,17 +90,71 @@ AddEventHandler('playerJoining', function(oldId)
     profiles[player] = profile
     profile.joined = true
     identities[profile.identity] = player
+    local bucket = 100000 + tonumber(player)
+    SetRoutingBucketPopulationEnabled(bucket, false)
+    SetPlayerRoutingBucket(player, bucket)
 end)
 
 AddEventHandler('playerDropped', function() release(tostring(source)) end)
 
-RegisterNetEvent('ofm:requestSpawn', function()
+local function characterRequest(action, slot, appearance)
     local player = tostring(source)
-    if not profiles[player] or not profiles[player].account or spawned[player] then return end
-    if not databaseReady() then return end
-    spawned[player] = true
-    TriggerClientEvent('ofm:spawnTestPlayer', tonumber(player), profiles[player].account.id)
-end)
+    local profile = profiles[player]
+    if not profile or not profile.joined or spawned[player] or profile.busy then return end
+    if profile.nextRequest and GetGameTimer() < profile.nextRequest then
+        TriggerClientEvent('ofm:characterError', tonumber(player), 'Please wait a moment, then select again.')
+        return
+    end
+    profile.nextRequest = GetGameTimer() + 500
+    if action ~= 'list' and slot ~= 1 and slot ~= 2 then return end
+    if action == 'create' and type(appearance) ~= 'table' then return end
+    if not databaseReady() then
+        TriggerClientEvent('ofm:characterError', tonumber(player), 'The database is unavailable. Try again shortly.')
+        return
+    end
+    profile.busy = true
+    local settled = false
+    local function finish(ok, characters)
+        if settled then return end
+        settled = true
+        if profiles[player] ~= profile then return end
+        profile.busy = false
+        if not ok then
+            TriggerClientEvent('ofm:characterError', tonumber(player), 'Character could not be loaded or saved. Try again.')
+            return
+        end
+        if action == 'select' then
+            for _, character in ipairs(characters) do
+                if character.slot == slot then
+                    spawned[player] = character.id
+                    SetPlayerRoutingBucket(player, 0)
+                    TriggerClientEvent('ofm:spawnCharacter', tonumber(player), character)
+                    return
+                end
+            end
+        end
+        TriggerClientEvent('ofm:characters', tonumber(player), characters)
+    end
+    SetTimeout(15000, function()
+        if not settled and profiles[player] == profile then
+            settled = true
+            DropPlayer(player, 'Character request timed out. Reconnect to check the saved result.')
+            release(player)
+        end
+    end)
+    local invoked = pcall(function()
+        if action == 'create' then
+            exports.ofm_db:createCharacter(profile.account.id, slot, appearance, finish)
+        else
+            exports.ofm_db:listCharacters(profile.account.id, finish)
+        end
+    end)
+    if not invoked then finish(false) end
+end
+
+RegisterNetEvent('ofm:requestSpawn', function() characterRequest('list') end)
+RegisterNetEvent('ofm:createCharacter', function(slot, appearance) characterRequest('create', slot, appearance) end)
+RegisterNetEvent('ofm:selectCharacter', function(slot) characterRequest('select', slot) end)
 
 AddEventHandler('onResourceStop', function(name)
     if name ~= GetCurrentResourceName() then return end

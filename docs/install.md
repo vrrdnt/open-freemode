@@ -2,7 +2,7 @@
 
 This is the primary installation path. Start with a **new Pelican server, new persistent files and an empty database**. No backup, SQL import, local test directory, pre-existing account or node-side image build is required.
 
-The current release provides Enhanced client access, persistent accounts and a temporary airport spawn. Character creation, the classic GTA Online tutorial, money and missions are still being developed. Keep this installation tester-only.
+The current release provides Enhanced client access, persistent accounts, an initial character creator and a temporary airport spawn. The full creator, classic GTA Online tutorial, money and missions are still being developed. Keep this installation tester-only.
 
 ## 1. Prepare the prerequisites
 
@@ -15,7 +15,7 @@ You need:
 - One available game port, such as **30120**, reachable over **TCP and UDP**. If the node is behind a router, forward both protocols to the node. Use the externally reachable address when connecting from another PC.
 - Outbound HTTPS from Wings to GHCR and from the game container to Cfx. The first start downloads the pinned Cfx runtime and caches it; it does not compile anything.
 
-This guide assumes Panel/Wings are already installed. Their installed versions and a real Pelican installation still need operator validation; local Docker/client tests are not a claim that every Pelican version is supported.
+This guide assumes Panel/Wings are already installed. A fresh installation has been reported working by the operator. Exact Panel/Wings versions remain to be recorded; this is not a claim that every Pelican version is supported.
 
 ## 2. Register a database host in Pelican
 
@@ -86,10 +86,10 @@ Save the settings. Do not put the Database Host provisioning account into these 
 
 1. Open the server console and select **Start**.
 2. On the first start, wait for the runtime download and checksum verification. Future starts with that runtime pin reuse the cache.
-3. Wait for `[ofm_db] Schema 1 ready.` and confirm `ofm_core` starts.
+3. Wait for `[ofm_db] Schema 2 ready.` and confirm `ofm_core` starts.
 4. Enter `ofm_status` in the **Pelican server console**. Expect `database=ready profiles=0` before any tester has joined.
 
-The first start creates `ofm_schema` and `ofm_accounts`. You do not need a migration command or a database administration tool for a clean installation. An account row is created only after an authorized player's first connection.
+The first start creates `ofm_schema`, `ofm_accounts` and `ofm_characters`. You do not need a migration command or a database administration tool for a clean installation. An account row is created only after an authorized player's first connection.
 
 If a required setting is missing, stop the retry loop and correct it. Do not enable general player access to work around a database failure.
 
@@ -107,7 +107,7 @@ If a required setting is missing, stop the retry loop and correct it. Do not ena
    For example, prepend `identifier.` to the complete `license:...` value. Do not duplicate the `license:` prefix.
 
 5. Save the file, then **restart the server** to apply it.
-6. Reconnect from FiveM. The database should create your new account, and your character should spawn at the airport.
+6. Reconnect from FiveM. The database should create your new account, then character selection opens. Create and save a character, then select it to spawn at the airport. See the [character walkthrough](characters.md).
 
 Repeat for each tester. Keep identifiers private and do not authorize `builtin.everyone`. No tester data is copied from another installation.
 
@@ -118,7 +118,7 @@ Confirm each result:
 - Initial unauthorized connection was rejected.
 - Authorized connection spawned a character at the airport, with normal movement.
 - `ofm_status` reports `database=ready profiles=1` while that tester is connected.
-- Disconnect/reconnect works. The client log's `Open Freemode test profile N loaded` message retains the same profile number.
+- Disconnect/reconnect works. The client log's `Open Freemode character N (slot S) loaded` message retains the same character number for that slot.
 - Pelican stop/start works, and a subsequent reconnect retains that account.
 
 Record the image digest, Panel/Wings versions, Linux architecture and database version with these results. That is the evidence for a reproducible fresh deployment. Recovery testing can follow after this baseline works; it is not a prerequisite or an input to installation.

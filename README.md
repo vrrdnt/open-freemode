@@ -2,9 +2,11 @@
 
 A public-source project designing a GTA Online-like freemode experience for **FiveM for GTA V Enhanced**, with reproducible **Pelican** deployments.
 
-**Status: development foundation.** The repository now contains a Dockerfile, generated Pelican egg, launcher, schema initialization, persistent test accounts and a tester-only spawn resource. A real Enhanced client has joined the local Docker deployment and spawned at the airport. Local tests also cover database outage/recovery, console commands, graceful shutdown and restoration of matched SQL/files into separate storage. An installed Pelican deployment remains unverified. This is not a playable GTA Online recreation yet.
+**Status: character creation testing.** The operator reported a successful fresh Pelican installation on 6 September 2026. The next release adds two persistent character slots and an initial appearance preview/editor; its real Enhanced client walkthrough remains pending. Local foundation tests also cover database outage/recovery, console commands, graceful shutdown and restoration into separate storage. This is not a playable GTA Online recreation yet.
 
 **Start here: [Fresh installation on Pelican](docs/install.md).** Create a new server and an empty database using the published image. No backup, imported SQL, existing test account or local build is needed.
+
+Already installed? See the [character release upgrade and test steps](docs/characters.md).
 
 Pelican controls FXServer directly; embedded txAdmin is deferred because its Enhanced runtime hangs with Docker's default security profile. The [development runbook](docs/development.md) covers internals and testing.
 

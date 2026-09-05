@@ -8,6 +8,10 @@ function RegisterCommand(name, callback, restricted) assert(restricted); command
 local identity = 'license:' .. string.rep('a', 40)
 local absent = {}
 local expirations = {}
+local clock, buckets, characterReads, deferred = 1000, {}, 0, nil
+function GetGameTimer() clock = clock + 1000; return clock end
+function SetRoutingBucketPopulationEnabled() end
+function SetPlayerRoutingBucket(player, bucket) buckets[tostring(player)] = bucket end
 function AddEventHandler(name, callback) handlers[name] = callback end
 RegisterNetEvent = AddEventHandler
 function Wait() end
@@ -27,7 +31,18 @@ exports = {ofm_db = {
     openAccount = function(_, _, callback)
         if failedExport then error('Resource export failed') end
         reads = reads + 1; callback(dbOk, {id = '42'})
-    end
+    end,
+    listCharacters = function(_, account, callback)
+        assert(account == '42', 'Account must come from server admission')
+        characterReads = characterReads + 1
+        if deferred then deferred.callback = callback; return end
+        callback(true, {{id = '77', slot = 1, appearance = {sex = 0}}})
+    end,
+    createCharacter = function(_, account, slot, appearance, callback)
+        assert(account == '42' and slot == 2 and appearance.sex == 1)
+        characterReads = characterReads + 1
+        callback(true, {{id = '78', slot = 2, appearance = appearance}})
+    end,
 }}
 dofile('resources/ofm_core/server.lua')
 local function connect(player)
@@ -65,8 +80,18 @@ for _, expire in ipairs(expirations) do expire() end
 assert(#dropped == 0, 'Old connection timers must not drop a joined or replacement session')
 assert(connect(10), 'An active joined session must not be replaced by a duplicate attempt')
 handlers['ofm:requestSpawn']()
-handlers['ofm:requestSpawn']()
-assert(#emitted == 1 and emitted[1][2] == 10 and emitted[1][3] == '42', 'Only admitted profile may spawn once')
+assert(buckets['10'] ~= 0 and emitted[#emitted][1] == 'ofm:characters', 'Selection is isolated from freemode')
+handlers['ofm:selectCharacter'](2)
+assert(emitted[#emitted][1] == 'ofm:characters' and buckets['10'] ~= 0, 'An empty slot cannot spawn')
+handlers['ofm:createCharacter'](3, {})
+assert(characterReads == 2, 'Invalid slot must never reach SQL')
+handlers['ofm:createCharacter'](2, {sex = 1})
+assert(characterReads == 3 and emitted[#emitted][1] == 'ofm:characters')
+handlers['ofm:selectCharacter'](1)
+local emissionCount = #emitted
+handlers['ofm:selectCharacter'](1)
+assert(#emitted == emissionCount and emitted[#emitted][1] == 'ofm:spawnCharacter' and
+    emitted[#emitted][3].id == '77' and buckets['10'] == 0, 'Owned character spawns exactly once')
 commands.ofm_status(0)
 assert(messages[#messages] == '[ofm_core] database=ready profiles=1')
 local count = #messages
@@ -74,10 +99,22 @@ commands.ofm_status(10)
 assert(#messages == count, 'Status diagnostics must be console-only')
 source = 99
 handlers['ofm:requestSpawn']()
-assert(#emitted == 1, 'Unadmitted client must not trigger a spawn')
+assert(#emitted == emissionCount, 'Unadmitted client must not trigger a spawn')
 source = 10
 handlers.playerDropped()
 assert(not connect(3), 'Disconnect must release the active identity')
+source = 11
+handlers.playerJoining('3')
+deferred = {}
+handlers['ofm:requestSpawn']()
+local pendingReads = characterReads
+handlers['ofm:requestSpawn']()
+assert(characterReads == pendingReads, 'Only one character request may be in flight')
+handlers.playerDropped()
+deferred.callback(true, {})
+assert(#emitted == emissionCount, 'Late SQL callback cannot respond to a dropped session')
+deferred = nil
+assert(not connect(3))
 source = 11
 handlers.playerJoining('3')
 handlers.onResourceStop('ofm_core')

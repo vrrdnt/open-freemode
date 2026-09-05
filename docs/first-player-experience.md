@@ -1,6 +1,6 @@
 # First player experience and public release scope
 
-Status: design, updated 5 September 2026. No gameplay in this document is implemented. This specification extends the [server design](design.md).
+Status: design, updated 6 September 2026. An [initial two-slot character editor](characters.md) is implemented for testing; the full opening and economy below remain planned. This specification extends the [server design](design.md).
 
 ## Selected experience
 

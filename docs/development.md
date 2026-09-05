@@ -2,7 +2,7 @@
 
 For a new deployment, follow **[Fresh installation on Pelican](install.md)**. This document is the technical runbook; its recovery fixtures are not installation inputs.
 
-Status: foundation implementation, 6 September 2026. This is a disposable tester package, not a public gameplay release. Classic onboarding, character appearance storage, money, vehicles, missions and the tutorial remain to be implemented. No starter cash or business portfolio is granted. Test accounts will be reset before the lasting public economy.
+Status: foundation implementation, 6 September 2026. This is a disposable tester package, not a public gameplay release. An initial two-slot character editor and appearance storage are implemented; see [the character release](characters.md). Classic onboarding, money, vehicles, missions and the tutorial remain to be implemented. No starter cash or business portfolio is granted. Test accounts will be reset before the lasting public economy.
 
 ## Current architecture
 
@@ -69,7 +69,7 @@ This procedure is ready for operator validation; it has not yet passed a real Pe
    add_ace identifier.license:YOUR_TESTER_IDENTIFIER ofm.join allow
    ```
 
-6. Start using Pelican. The server rejects players without `ofm.join`. Restrict staging network access to testers: `sv_master1 ""` disables the server-browser connect button but [does not remove the server from the master list](https://docs.fivem.net/docs/server-manual/server-commands/#sv_master1-newvalue). `[ofm_db] Schema 1 ready.` is the egg's proposed readiness marker; it reports database/schema readiness, not proof that a client can load and play. Check that both custom resources start. Run `ofm_status` in the server console to check database readiness and the loaded profile count. The client joins using the game endpoint; there is no txAdmin setup step.
+6. Start using Pelican. The server rejects players without `ofm.join`. Restrict staging network access to testers: `sv_master1 ""` disables the server-browser connect button but [does not remove the server from the master list](https://docs.fivem.net/docs/server-manual/server-commands/#sv_master1-newvalue). `[ofm_db] Schema 2 ready.` is the egg's proposed readiness marker; it reports database/schema readiness, not proof that a client can load and play. Check that both custom resources start. Run `ofm_status` in the server console to check database readiness and the loaded profile count. The client joins using the game endpoint; there is no txAdmin setup step.
 7. Complete the real-client and recovery gates below before admitting public players. Do not widen admission simply to work around a profile or database error.
 
 Hidden Pelican variables are still accessible to sufficiently privileged operators. Restrict panel, console, file and backup access accordingly. Never publish generated settings, SQL dumps or player identifiers.
@@ -88,7 +88,7 @@ Resource files are generated deployment copies, not the customization surface. A
 
 ## Database initialization and recovery
 
-Schema 1 contains `ofm_schema` and `ofm_accounts`. Each account has a unique server-verified `license:` identity and first/last-seen times. Character state and balances do not exist yet. The driver uses parameterized statements, transactions and a unique index to handle concurrent connects.
+Schema 2 contains `ofm_schema`, `ofm_accounts` and `ofm_characters`. Each account has a unique server-verified `license:` identity and first/last-seen times. Characters have an account foreign key, a unique account/slot pair and validated versioned appearance JSON. Balances do not exist yet. The driver uses parameterized statements, transactions and a unique index to handle concurrent connects.
 
 An empty dedicated database initializes on first resource start. A foreign database, newer schema, missing account table or incomplete initial migration suspends profile admission. A database advisory lock serializes schema initialization. The account requires table creation and ordinary SELECT/INSERT/UPDATE privileges inside its allocated database; it does not require user/database provisioning privileges. The current tests cover MariaDB 11.4, not every MySQL version offered by Pelican.
 
@@ -104,7 +104,7 @@ docker run --rm --env-file /PRIVATE/PATH/server.env \
   open-freemode:development python3 /opt/open-freemode/scripts/launcher.py migrate
 ```
 
-Replace the placeholder paths privately, preserving the runtime user's ownership. Success prints `Open Freemode schema 1 ready.`; nonzero exit means stop and investigate. This is not a Pelican console command. Normal server startup does not silently resume an incomplete migration. Schema 1 supports initialization/resume only; future schema upgrades need explicit release migrations.
+Replace the placeholder paths privately, preserving the runtime user's ownership. Success prints `Open Freemode schema 2 ready.`; nonzero exit means stop and investigate. This is not a Pelican console command. Normal server startup does not silently resume an incomplete migration. The additive schema-1-to-2 character migration retries automatically and preserves accounts; see the release-specific upgrade/rollback instructions in [characters](characters.md).
 
 For restoration, restore matched files and a SQL dump to **separate** storage and a dedicated restore database, supply its new private credentials, and start with the original image. Check the original test account ID after reconnecting. The isolated fixture verifies SQL/file restoration and authenticated native startup; a real Pelican restore with a reconnecting game client remains outstanding. No recovery time or loss guarantee is established.
 
@@ -122,8 +122,16 @@ Local evidence, 6 September 2026:
 - Authenticated Enhanced build 139: `chat`, `ofm_db` and `ofm_core` loaded with default Docker security and a TTY; the database ConVar worked inside Cfx; console status, SQL outage/recovery, database resource restart and clean shutdown passed. The info endpoint did not expose the tested private settings. No game client was connected.
 - Real Enhanced client build 131: tester-only admission rejected the initial unauthorized attempt; after authorization, the client loaded its persisted profile and spawned at the airport. The operator supplied an in-game screenshot confirming the spawn. This test exposed and led to fixes for the server-only manifest dependency and stale handshake reservation. Server logs still distinguish a loaded account from successful client spawning.
 
-Still required: installed Panel/Wings versions and node architecture; real egg installation/ownership; database outage during a real player connection; Pelican console/stop/restart; matched SQL/file restoration through the intended deployment with a reconnecting client; a second independent installation. These remain the P0 acceptance gates. CI cannot substitute for them.
+Still required: installed Panel/Wings versions and node architecture; detailed egg ownership/lifecycle evidence; database outage during a real player connection; Pelican console/stop/restart; matched SQL/file restoration through the intended deployment with a reconnecting client; a recorded supported-version matrix. These remain the P0 acceptance gates. CI cannot substitute for them.
 
 ## Community reference leads
 
 The [Cfx server tutorials category](https://forum.cfx.re/c/server-development/server-tutorials/37) includes an [Enhanced game-build report](https://forum.cfx.re/t/game-build-on-fivem-enhanced/5419848) and an [ACE permissions guide](https://forum.cfx.re/t/basic-aces-principals-overview-guide/90917). Use these as investigation leads and verify behavior against official documentation and the pinned runtime. The current generated configuration does not force a Legacy game build; Enhanced DLC availability still needs a real-client check.
+
+## Character milestone evidence, 6 September 2026
+
+The operator reported the published fresh Pelican installation works. That is an operator report, not an automated node inspection. Exact Panel/Wings versions and individual lifecycle results have not been supplied.
+
+The character change passed 12 real MariaDB checks, including concurrent slot creation, retry preservation, ownership isolation and schema-1 upgrade/retry; Lua server and client-state harnesses pass. The new appearance interface still needs the [real Enhanced walkthrough](characters.md#in-game-acceptance-check).
+
+Authenticated native testing also passed the Lua-to-JavaScript character export boundary with a nested facial-feature array, a saved second slot and a readback of its ID. This does not exercise a connected game client.

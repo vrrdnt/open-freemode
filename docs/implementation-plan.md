@@ -1,6 +1,6 @@
 # Implementation plan and dependency decisions
 
-Status: foundation development, 5 September 2026. The [development runbook](development.md) records implemented behavior and local evidence. P0 remains incomplete until real Enhanced/Pelican and recovery gates pass. The work packages below remain the full backlog.
+Status: character creation testing, 6 September 2026. The operator reports that fresh Pelican installation works. P1-B now has an initial two-slot appearance implementation; see [its scope and acceptance steps](characters.md). P0's detailed lifecycle/version evidence and P1's complete creator/tutorial/economy remain open. The work packages below remain the full backlog.
 
 Implementation decisions superseding the original proposal below: use mysql2 with structured options; run FXServer directly under Pelican while embedded txAdmin compatibility is deferred; copy and verify real resource files rather than using symlinks. The pinned runtime, driver, local tests and remaining live checks are recorded in the runbook. The following oxmysql evaluation is retained as decision context, not as the installed driver.
 
