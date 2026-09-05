@@ -30,6 +30,6 @@ jobs:
               for version in versions:
                   tags = version['metadata']['container']['tags']
                   if tags == ['sha-2a0f304ef1c55edb7286c3d6644ad6f2e4118706']:
-                      api(base + '/versions/' + str(version['id']), 'DELETE')
+                      api(base if len(versions) == 1 else base + '/versions/' + str(version['id']), 'DELETE')
                       print('Withdrew the initial test version; other versions were not changed.')
           PY
