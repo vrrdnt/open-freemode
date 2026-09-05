@@ -31,6 +31,13 @@ AddEventHandler('playerConnecting', function(_, _, deferrals)
         return
     end
     local identity = GetPlayerIdentifierByType(player, 'license')
+    local previous = identity and identities[identity]
+    if previous then
+        local old = profiles[previous]
+        if not GetPlayerName(previous) or (previous == player and old and old.accepted and not old.joined) then
+            release(previous)
+        end
+    end
     if not identity or identities[identity] then
         deferrals.done('A valid, unused game identity is required. Disconnect any other active session and retry.')
         return
@@ -40,7 +47,8 @@ AddEventHandler('playerConnecting', function(_, _, deferrals)
         return
     end
     identities[identity] = player
-    profiles[player] = { identity = identity }
+    local profile = { identity = identity }
+    profiles[player] = profile
     deferrals.update('Loading your test profile...')
     local result = promise.new()
     local settled = false
@@ -53,13 +61,20 @@ AddEventHandler('playerConnecting', function(_, _, deferrals)
     local invoked = pcall(function() exports.ofm_db:openAccount(identity, finish) end)
     if not invoked then finish(false) end
     local answer = Citizen.Await(result)
-    if not answer.ok or not GetPlayerName(player) or not profiles[player] then
-        release(player)
+    Wait(0)
+    if not answer.ok or not GetPlayerName(player) or profiles[player] ~= profile then
+        if profiles[player] == profile then release(player) end
         deferrals.done('Your profile could not be loaded. Please reconnect.')
         return
     end
-    profiles[player].account = answer.account
+    profile.account, profile.accepted = answer.account, true
     deferrals.done()
+    SetTimeout(120000, function()
+        if profiles[player] == profile and not profile.joined then
+            DropPlayer(player, 'The connection attempt expired. Please reconnect.')
+            release(player)
+        end
+    end)
 end)
 
 AddEventHandler('playerJoining', function(oldId)
@@ -71,6 +86,7 @@ AddEventHandler('playerJoining', function(oldId)
     end
     profiles[previous] = nil
     profiles[player] = profile
+    profile.joined = true
     identities[profile.identity] = player
 end)
 

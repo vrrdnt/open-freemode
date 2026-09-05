@@ -6,13 +6,17 @@ local originalPrint = print
 function print(message) messages[#messages + 1] = message end
 function RegisterCommand(name, callback, restricted) assert(restricted); commands[name] = callback end
 local identity = 'license:' .. string.rep('a', 40)
+local absent = {}
+local expirations = {}
 function AddEventHandler(name, callback) handlers[name] = callback end
 RegisterNetEvent = AddEventHandler
 function Wait() end
-function SetTimeout() end
+function SetTimeout(milliseconds, callback)
+    if milliseconds == 120000 then expirations[#expirations + 1] = callback end
+end
 function IsPlayerAceAllowed() return allowed end
 function GetPlayerIdentifierByType() return identity end
-function GetPlayerName() return 'Test player' end
+function GetPlayerName(player) return not absent[tostring(player)] and 'Test player' or nil end
 function GetCurrentResourceName() return 'ofm_core' end
 function TriggerClientEvent(name, player, account) emitted[#emitted + 1] = {name, player, account} end
 function DropPlayer(player) dropped[#dropped + 1] = player end
@@ -51,8 +55,14 @@ assert(connect(1), 'Failed profile load must reject admission')
 dbOk = true
 assert(not connect(1), 'A failed attempt must release its identity reservation')
 assert(connect(2), 'Concurrent duplicate identity must be refused')
+absent['1'] = true
+assert(not connect(3), 'An abandoned attempt without a drop event must not block reconnect')
+assert(not connect(3), 'A retried completed handshake with the same temporary ID must be admitted')
 source = 10
-handlers.playerJoining('1')
+handlers.playerJoining('3')
+for _, expire in ipairs(expirations) do expire() end
+assert(#dropped == 0, 'Old connection timers must not drop a joined or replacement session')
+assert(connect(10), 'An active joined session must not be replaced by a duplicate attempt')
 handlers['ofm:requestSpawn']()
 handlers['ofm:requestSpawn']()
 assert(#emitted == 1 and emitted[1][2] == 10 and emitted[1][3] == '42', 'Only admitted profile may spawn once')
@@ -71,4 +81,9 @@ source = 11
 handlers.playerJoining('3')
 handlers.onResourceStop('ofm_core')
 assert(#dropped == 1 and dropped[1] == '11', 'Core restart must require profile admission again')
+handlers.playerDropped()
+assert(not connect(4))
+expirations[#expirations]()
+assert(#dropped == 2 and dropped[2] == '4', 'An unfinished handshake must expire')
+assert(not connect(5), 'Expired handshake must release the identity reservation')
 originalPrint('Core admission checks passed: access, SQL/resource failure, console status, duplicate identity, join mapping, spawn replay and reconnect.')

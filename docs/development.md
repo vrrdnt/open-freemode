@@ -74,7 +74,9 @@ Hidden Pelican variables are still accessible to sufficiently privileged operato
 
 ## Persistent files and resource updates
 
-`/opt/open-freemode` holds immutable build inputs. The launcher copies the bundled resources into the real directory `/home/container/server-data/resources`, then verifies their content against the image on every start. This avoids resource symlinks and outside-resource file reads described as blocked in the [Enhanced sandbox documentation](https://docs.fivem.net/docs/developers/sandbox/). Actual client resource loading remains a live acceptance gate.
+`/opt/open-freemode` holds immutable build inputs. The launcher copies the bundled resources into the real directory `/home/container/server-data/resources`, then verifies their content against the image on every start. This avoids resource symlinks and outside-resource file reads described as blocked in the [Enhanced sandbox documentation](https://docs.fivem.net/docs/developers/sandbox/). Client resource loading and the temporary airport spawn have passed on the local Enhanced client.
+
+The shared core manifest must not depend on the server-only database resource: Enhanced's client rejected that dependency and never loaded the spawn script. Managed startup already ensures the database before the core; server-side readiness checks govern admission.
 
 `config/operator.cfg` is operator-owned and executes before managed settings. `server-data/server.cfg` and `config/database.json` are generated with mode 0600. The driver receives base64-encoded JSON through a server-only ConVar restricted to `ofm_db`; base64 is transport encoding, **not encryption**. Never print that ConVar. The migration CLI reads the private JSON file outside the game sandbox. Database settings are not inherited by the game process as environment variables.
 
@@ -89,6 +91,8 @@ Schema 1 contains `ofm_schema` and `ofm_accounts`. Each account has a unique ser
 An empty dedicated database initializes on first resource start. A foreign database, newer schema, missing account table or incomplete initial migration suspends profile admission. A database advisory lock serializes schema initialization. The account requires table creation and ordinary SELECT/INSERT/UPDATE privileges inside its allocated database; it does not require user/database provisioning privileges. The current tests cover MariaDB 11.4, not every MySQL version offered by Pelican.
 
 Initialization advances the schema marker only after the required account columns can be queried. If a partial account table is incompatible, explicit resume fails and leaves version zero for investigation. A stopped or failing database resource also refuses admission instead of leaving an export exception unhandled.
+
+Account admission also tracks connection lifetime. A missing prior player or a repeated completed handshake on the same temporary ID releases an abandoned reservation. Joined sessions remain protected from duplicates. An accepted handshake that never reaches `playerJoining` expires after two minutes; its timer cannot remove a replacement session. This addresses an observed reconnect rejection with zero connected players but one retained profile reservation.
 
 After investigating an interrupted **initial** migration, stop the game and take file/SQL backups. On the Docker host, use a one-shot container with the same image, persistent mount and private environment file:
 
@@ -114,8 +118,9 @@ Local evidence, 6 September 2026:
 - Lua admission harness: authorization, database/resource failure, console-only status, duplicate identity, source-ID transition, spawn replay and reconnect decisions passed with mocked natives.
 - Matched backup fixture: SQL and persistent files restored into separate storage; account IDs/timestamps, operator settings, replacement credentials and source isolation verified.
 - Authenticated Enhanced build 139: `chat`, `ofm_db` and `ofm_core` loaded with default Docker security and a TTY; the database ConVar worked inside Cfx; console status, SQL outage/recovery, database resource restart and clean shutdown passed. The info endpoint did not expose the tested private settings. No game client was connected.
+- Real Enhanced client build 131: tester-only admission rejected the initial unauthorized attempt; after authorization, the client loaded its persisted profile and spawned at the airport. The operator supplied an in-game screenshot confirming the spawn. This test exposed and led to fixes for the server-only manifest dependency and stale handshake reservation. Server logs still distinguish a loaded account from successful client spawning.
 
-Still required: installed Panel/Wings versions and node architecture; real egg installation/ownership; client downloads and spawn; database outage during a real player connection; Pelican console/stop/restart; matched SQL/file restoration through the intended deployment with a reconnecting client; a second independent installation. These remain the P0 acceptance gates. CI cannot substitute for them.
+Still required: installed Panel/Wings versions and node architecture; real egg installation/ownership; database outage during a real player connection; Pelican console/stop/restart; matched SQL/file restoration through the intended deployment with a reconnecting client; a second independent installation. These remain the P0 acceptance gates. CI cannot substitute for them.
 
 ## Community reference leads
 
