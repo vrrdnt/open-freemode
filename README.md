@@ -6,15 +6,21 @@ A public-source project designing a GTA Online-like freemode experience for **Fi
 
 ## Project direction
 
-- Target current GTA Online behavior, delivered in phases.
+- Target current GTA Online behavior, delivered in phases, with classic newcomer onboarding instead of Career Builder.
 - Match normal prices, payouts, and unlock requirements using dated reference evidence.
 - Target Enhanced first and verify every selected dependency against it.
 - Package the game runtime and custom resources as one image per release.
 - Use one external MySQL/MariaDB database provisioned through Pelican Database Hosts for each deployed server.
 - Publish original code, image build definitions, eggs, migrations, tests, and instructions so other operators can reproduce releases.
 - Keep deployment credentials, private infrastructure details, player records, and purchased assets outside Git.
+- Reset test progression before the lasting public economy launches.
 
-Read the [server design](docs/design.md) for architecture, gameplay coverage, phases, and acceptance criteria. Read the [reproducibility plan](docs/reproducibility.md) for publication and release requirements.
+Read the [server design](docs/design.md) for architecture and full gameplay scope. The detailed plans are:
+
+- [First player experience](docs/first-player-experience.md): classic onboarding, character boundaries, reference capture and the public launch gate.
+- [Pelican deployment specification](docs/pelican-deployment-spec.md): installation, configuration ownership, txAdmin, updates and recovery.
+- [Implementation plan](docs/implementation-plan.md): dependency approach, ordered work packages and execution evidence still required.
+- [Reproducibility plan](docs/reproducibility.md): publication and release requirements.
 
 ## Intended deployment
 

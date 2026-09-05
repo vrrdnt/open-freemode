@@ -4,7 +4,7 @@ Planning baseline: 5 September 2026. Status: design for review; no server, image
 
 ## Agreed direction
 
-Build a public FiveM server that reproduces current GTA Online as closely as practical, delivered in phases. Match normal prices, payouts, and unlock requirements. Target FiveM for GTA V Enhanced first and select compatible resources. Deploy through Pelican using one game-server Docker image and a dedicated MySQL/MariaDB database allocated through Database Hosts. Operators supply their own node and resource limits.
+Build a public FiveM server that reproduces current GTA Online as closely as practical, delivered in phases. Match normal prices, payouts, and unlock requirements. Use classic newcomer onboarding without the Career Builder grant, on the Enhanced client. Target FiveM for GTA V Enhanced first and select compatible resources. Deploy through Pelican using one game-server Docker image and a dedicated MySQL/MariaDB database allocated through Database Hosts. Operators supply their own node and resource limits.
 
 Those are project decisions. The architecture and milestone sequence below are recommendations. An early playable release is a step toward the full target; it does not replace the target with a generic freeroam server.
 
@@ -13,6 +13,8 @@ Those are project decisions. The architecture and milestone sequence below are r
 | Public community server | Agreed | Persistent progression, moderation, recovery, and concurrency matter from the first beta. |
 | Current GTA Online, delivered in phases | Agreed | Maintain a feature inventory and record gaps explicitly. |
 | Normal prices, payouts, unlocks | Agreed | Economy changes need reference evidence, not arbitrary balancing multipliers. |
+| Classic newcomer opening | Agreed | No Career Builder budget or starter business portfolio; verify tutorial cash/items rather than assuming literally zero. |
+| Reset test progression before public launch | Agreed | Fresh production economy; test grants and eligibility do not carry over. |
 | Enhanced first | Agreed | Audit server artifacts, natives, UI, voice, and third-party resources for Enhanced. |
 | Operator-selected Pelican node | Agreed | Use Wings allocations and persistent storage; inspect installed versions before implementation. |
 | One runtime image; external allocated SQL database | Agreed | MariaDB is shared infrastructure outside the game container. |
@@ -25,6 +27,8 @@ Those are project decisions. The architecture and milestone sequence below are r
 Choose an explicit reference date and game edition for each release. Record permanent updates to prices and rules as new baseline revisions. Keep the reference-data revision separate from the FXServer artifact version: platform updates do not automatically update our economy or missions.
 
 Working interpretation of **normal**: ordinary non-promotional prices and rewards, with earned trade prices and permanent unlocks retained. Temporary weekly discounts, bonus payout events, account-specific grants, and subscription entitlements are tracked separately. Their treatment is a later design decision, not an implicit promise to reproduce Rockstar account services. No official account/progression import is planned.
+
+The chosen opening is an explicit exception to current Enhanced's Career Builder. Players progress through the classic tutorial and earn their way into later content. See the [first-player specification](first-player-experience.md) for evidence, account boundaries and the complete opening. Test progression resets before the public economy starts; ordinary future updates do not imply a wipe.
 
 For each implemented system, compare the complete player experience: prerequisites, entry, controls, prices, objectives, success/failure, rewards, cooldowns, and persistence. A visible business interior is not a working business. A purchasable vehicle without modification persistence, delivery, and loss recovery is not a complete personal-vehicle system.
 
@@ -71,6 +75,8 @@ flowchart TB
 ```
 
 One image can run both environments as separate Pelican servers. This is not a nested Docker or Docker Compose deployment inside the game container. Pelican/Wings and the SQL host remain existing infrastructure.
+
+The [deployment specification](pelican-deployment-spec.md) defines the planned installation flow, configuration authority, current txAdmin environment interface and foundation test record. It is a contract for implementation, not an already runnable egg.
 
 ### Responsibilities
 
@@ -130,7 +136,7 @@ Release metadata records the image digest, Enhanced artifact, resource versions/
 
 Enhanced is an explicit target. Cfx currently documents changes to synchronization, asset conversion, scripting behavior and supported builds, and lists Asset Escrow as not implemented. We therefore need an Enhanced compatibility check for every resource before selecting it. Recheck at the implementation date; this is a changing platform. [Enhanced onboarding](https://docs.fivem.net/docs/server-manual/onboarding-guide-fivem-for-gtav-enhanced/), [Enhanced changes](https://docs.fivem.net/docs/developers/legacy-vs-enhanced/)
 
-Do not assume the old FiveM egg, a C# binary, a voice resource, or an interior pack works unchanged. Prefer inspectable, maintainable dependencies. Evaluate existing libraries for database access, menus, character appearance and interiors before writing replacements; keep the gameplay rules in our code where fidelity requires them. No specific framework or SQL driver is yet selected.
+Do not assume the old FiveM egg, a C# binary, a voice resource, or an interior pack works unchanged. Prefer inspectable, maintainable dependencies. Evaluate existing libraries for database access, menus, character appearance and interiors before writing replacements; keep the gameplay rules in our code where fidelity requires them. The [implementation approach](implementation-plan.md#first-implementation-approach) starts with a small custom Lua gamemode and evaluates Overextended's oxmysql first. The driver is a candidate pending its listed tests, not a verified dependency.
 
 A shared Legacy/Enhanced player session is not a promised feature. Legacy support would be separately evaluated later; the initial image and test matrix target Enhanced.
 
@@ -168,7 +174,7 @@ Keep operator-facing details out of player screens. Show a useful unavailable/ma
 
 ## Updates, backups and recovery
 
-At launch, require a repeatable manual maintenance procedure; automation follows once its completion signals are proven. Select one owner for each recurring operation. Pelican schedules may trigger supported actions, but an SQL export requires an actual database-backup implementation and observable success.
+At launch, require a repeatable manual maintenance procedure; automation follows once its completion signals are proven. Select one owner for each recurring operation. Pelican schedules may trigger supported actions, but an SQL export requires an actual database-backup implementation and observable success. An ordinary restart checks existing schema compatibility; incompatible upgrades require explicit maintenance/migration mode as defined in the deployment specification.
 
 1. Deploy a candidate image to staging and test it against a separate database upgraded from a representative prior schema.
 2. Verify the relevant gameplay flows and the recovery cases affected by the release.
@@ -190,7 +196,7 @@ Phases organize dependencies. They are not calendar estimates and do not remove 
 | Phase | Deliverable | Evidence required to pass |
 |---|---|---|
 | 0 — Pelican/Enhanced foundation | Custom image/egg design implemented; external SQL connection; staging deployment | Clean install, real Enhanced client join, txAdmin access, correct console/stop behavior, persistent volume after replacement, and database/file restore on a disposable server |
-| 1 — Player and economy core | Character flow, account boundaries, normal starting state, cash/RP/unlocks, migrations | Exact baseline observations; reconnect/restart persistence; rejected invalid actions; duplicate requests and concurrent transactions cannot duplicate rewards |
+| 1 — Player and economy core | Character flow, account boundaries, classic tutorial starting state, cash/RP/unlocks, migrations | Exact baseline observations; reconnect/restart persistence; rejected invalid actions; duplicate requests and concurrent transactions cannot duplicate rewards |
 | 2 — First complete public loop | Freemode, police/respawn, shops, personal vehicles, garage/insurance, a representative contact mission and race | New character earns legitimate rewards, buys/modifies/stores a car, restarts and retrieves it; multi-client wanted/mission behavior; keyboard/controller walkthrough |
 | 3 — Social and property layer | Apartment/guest behavior, party invitations, organizations, broader activities and phone services | Two groups cannot access each other's private state; correct return to freemode; leader departure/rejoin behavior; verified property/unlock rules |
 | 4 — Business progression | Supply/production/sale systems and their prerequisite ownership | Normal costs/rates verified; correct timing and interruption behavior; sale rewards and stock changes settle once under concurrent requests |
@@ -198,7 +204,7 @@ Phases organize dependencies. They are not calendar estimates and do not remove 
 | 6 — Current-content expansion | Remaining businesses, specialized content and broader current catalogue | Feature-by-feature comparison to dated reference evidence; unresolved compatibility/content constraints recorded without marking approximate substitutes as parity |
 | Public launch gate | A declared playable subset of the catalogue with reliable operations | Repeated multiplayer sessions, representative peak-load test, restore drill, moderation exercise, accurate content listing and no unresolved progression-loss/duplication defects |
 
-A launch can happen after the first complete loop and the launch gate pass. The remaining phases stay on the roadmap. “Server boots,” a green unit-test suite, or a successful egg import alone cannot establish gameplay fidelity.
+A launch can happen after the classic opening, first complete loop and launch gate pass, on a clean production economy. All four Career Builder careers are not a launch prerequisite because that starter grant is excluded; their business systems remain on the roadmap as earned content. “Server boots,” a green unit-test suite, or a successful egg import alone cannot establish gameplay fidelity.
 
 Performance validation should measure server frame/hitch behavior, resource CPU time, memory over a sustained session, SQL latency/contention, entity counts and client frame impact. Exercise players spread across the map and clustered in one fight, several police pursuits, concurrent activities and joins/downloads. Hardware scaling does not resolve an unbounded entity-spawn loop or blocking database work.
 
@@ -212,9 +218,9 @@ No monetization system is selected. Do not assume that reproducing ordinary in-g
 
 Gameplay design can continue without host access. Before implementation, collect the installed Pelican/Wings versions, node architecture/OS, available storage and network allocations, MariaDB location/version and the Enhanced artifact chosen for testing. Confirm that a database host is registered and the game server has an allowance of one database. Do not assume that enabling the panel feature installs MariaDB.
 
-The next gameplay discussion should settle the first-time player experience and account/character rules. Then inventory the first release's purchasable items, mission/race examples and all their reference values. Also decide how temporary Rockstar promotions, edition-dependent starter benefits and limited content should be represented. Use normal baseline behavior until a specific variation is chosen.
+The first-time experience is now selected: classic onboarding without Career Builder, two character slots, and a reset of test progression before public launch. Complete the [reference capture](first-player-experience.md#reference-capture-required-before-gameplay-coding) for exact starter amounts, account/character money rules, tutorial outcomes, first catalogue and mission/race examples. Temporary promotions and limited content remain separate later decisions. Use normal baseline behavior until a specific variation is chosen.
 
-Do not set a delivery date or promise full current-content parity until the phase-0 compatibility test and first complete activity establish the actual work involved. The deployment architecture is selected; exact framework/driver choices, catalogue completion, host discovery and detailed mission design remain open.
+Do not set a delivery date or promise full current-content parity until the phase-0 compatibility test and first complete activity establish the actual work involved. The deployment architecture is selected; driver qualification, catalogue completion, host discovery and detailed mission design remain implementation/discovery work.
 
 ## Evidence record
 
