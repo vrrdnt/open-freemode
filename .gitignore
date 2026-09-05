@@ -1,0 +1,32 @@
+# Operator settings and credentials
+.env
+.env.*
+!.env.example
+server.cfg
+secrets.cfg
+*.local.cfg
+*.local.json
+*.local.md
+*.pem
+*.key
+
+# Runtime state and private operator material
+/local/
+/private/
+/runtime/
+/server-data/
+/txData/
+/backups/
+/database-dumps/
+/logs/
+/cache/
+*.log
+
+# Build/dependency outputs
+node_modules/
+__pycache__/
+/dist/
+/build/
+*.tmp
+.DS_Store
+Thumbs.db
