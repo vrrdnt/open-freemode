@@ -126,7 +126,7 @@ local function characterRequest(action, slot, appearance)
         if action == 'select' then
             for _, character in ipairs(characters) do
                 if character.slot == slot then
-                    spawned[player] = character.id
+                    spawned[player] = character
                     SetPlayerRoutingBucket(player, 0)
                     TriggerClientEvent('ofm:spawnCharacter', tonumber(player), character)
                     return
@@ -155,6 +155,19 @@ end
 RegisterNetEvent('ofm:requestSpawn', function() characterRequest('list') end)
 RegisterNetEvent('ofm:createCharacter', function(slot, appearance) characterRequest('create', slot, appearance) end)
 RegisterNetEvent('ofm:selectCharacter', function(slot) characterRequest('select', slot) end)
+
+RegisterNetEvent('ofm:requestRespawn', function()
+    local player = tostring(source)
+    local profile, character = profiles[player], spawned[player]
+    if not profile or not profile.joined or not character then return end
+    local ped = GetPlayerPed(player)
+    if ped == 0 or GetEntityHealth(ped) > 100 then profile.deadAt = nil; return end
+    local now = GetGameTimer()
+    if not profile.deadAt then profile.deadAt = now; return end
+    if now - profile.deadAt < 5000 then return end
+    profile.deadAt = nil
+    TriggerClientEvent('ofm:respawnCharacter', tonumber(player), character)
+end)
 
 AddEventHandler('onResourceStop', function(name)
     if name ~= GetCurrentResourceName() then return end

@@ -9,6 +9,9 @@ local identity = 'license:' .. string.rep('a', 40)
 local absent = {}
 local expirations = {}
 local clock, buckets, characterReads, deferred = 1000, {}, 0, nil
+local health = 200
+function GetPlayerPed() return 123 end
+function GetEntityHealth() return health end
 function GetGameTimer() clock = clock + 1000; return clock end
 function SetRoutingBucketPopulationEnabled() end
 function SetPlayerRoutingBucket(player, bucket) buckets[tostring(player)] = bucket end
@@ -92,6 +95,16 @@ local emissionCount = #emitted
 handlers['ofm:selectCharacter'](1)
 assert(#emitted == emissionCount and emitted[#emitted][1] == 'ofm:spawnCharacter' and
     emitted[#emitted][3].id == '77' and buckets['10'] == 0, 'Owned character spawns exactly once')
+handlers['ofm:requestRespawn']()
+assert(#emitted == emissionCount, 'A living character cannot request a respawn')
+health = 0
+handlers['ofm:requestRespawn']()
+assert(#emitted == emissionCount, 'Death recovery must wait for the server timer')
+for _ = 1, 5 do handlers['ofm:requestRespawn']() end
+assert(#emitted == emissionCount + 1 and emitted[#emitted][1] == 'ofm:respawnCharacter' and
+    emitted[#emitted][3].id == '77', 'Respawn uses the server-selected character')
+emissionCount = #emitted
+health = 200
 commands.ofm_status(0)
 assert(messages[#messages] == '[ofm_core] database=ready profiles=1')
 local count = #messages
@@ -99,6 +112,7 @@ commands.ofm_status(10)
 assert(#messages == count, 'Status diagnostics must be console-only')
 source = 99
 handlers['ofm:requestSpawn']()
+handlers['ofm:requestRespawn']()
 assert(#emitted == emissionCount, 'Unadmitted client must not trigger a spawn')
 source = 10
 handlers.playerDropped()

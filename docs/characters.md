@@ -17,6 +17,8 @@ The creator groups edits into Heritage, Features and Appearance, with separate r
 
 Operator feedback confirmed keyboard arrows work, but the first UI rendered raw button IDs and omitted values. The presentation update addresses those render paths; its actual Enhanced glyphs/layout require a new screenshot check. It keeps schema 2 and all character data unchanged. Update the image/resources using the procedure below, giving the preserved resources directory a new suffix if needed.
 
+The original test spawn had no death recovery. The maintenance update now requests a server-checked respawn for the selected character after roughly five seconds, reapplies saved appearance at the temporary airport, and restores health, controls, camera and normal vulnerability. Pause controls are explicitly available while dead. The respawn delay/location are development recovery behavior, not verified GTA Online death/service rules; no financial effects are implemented. Test an actual death, pause access, automatic recovery and normal movement after updating. The mocked death-state checks pass; real Enhanced recovery still needs operator confirmation.
+
 Not yet included: the full heritage/cosmetic/clothing catalogue, character naming/deletion, post-creation appearance changes, mouse pointing, the original lineup scene, tutorial, finances or second-character rank copying. Default clothing is temporary. The editor's numeric IDs and native styling are development presentation, not a claim of exact GTA Online UI fidelity. Both real keyboard and controller use and Enhanced visual results still require an operator test.
 
 ## Reference record CHAR-01

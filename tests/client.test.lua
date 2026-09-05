@@ -3,6 +3,17 @@ local handlers, threads, sent, keys, messages = {}, {}, {}, {}, {}
 local model, frozen, invincible, cam, appliedSex = '', false, false, false, nil
 local keyboard, buttonBuilds, buttonDraws, buttonReleased = true, 0, 0, false
 local drawnText, promptStrings = {}, {}
+local dead, pause = false, false
+function IsEntityDead() return dead end
+function GetEntityMaxHealth() return 200 end
+function SetEntityHealth(_, health) assert(health == 200) end
+function ClearPedTasksImmediately() end
+function ClearPedBloodDamage() end
+function AnimpostfxStop(name) assert(name == 'DeathFailOut') end
+function EnableControlAction() end
+function IsControlJustPressed(_, control) return keys[control] end
+function SetPauseMenuActive(value) pause = value end
+function DoScreenFadeOut() end
 function RequestScaleformMovieInstance(name) assert(name == 'INSTRUCTIONAL_BUTTONS'); return 4 end
 function HasScaleformMovieLoaded() return true end
 function IsUsingKeyboardAndMouse() return keyboard end
@@ -41,11 +52,12 @@ function AddTextComponentSubstringPlayerName(value)
     assert(not value:find('~INPUT_', 1, true) and not value:find('b_', 1, true), 'Glyph tokens must be rendered by Scaleform, not text')
     drawnText[value] = true
 end
+function NetworkResurrectLocalPlayer() dead = false end
 
 dofile('resources/ofm_core/client.lua')
 local function tick(key)
     keys = key and {[key] = true} or {}
-    local ok, message = coroutine.resume(threads[1])
+    local ok, message = coroutine.resume(threads[2])
     assert(ok, message)
 end
 tick(); tick()
@@ -91,6 +103,14 @@ assert(buttonReleased, 'Native prompt movie must be released on spawn')
 assert(messages[#messages]:find('character 99 (slot 1)', 1, true))
 handlers['ofm:spawnCharacter'](saved)
 assert(#messages == 1, 'Repeated spawn event must not reset a playing character')
+dead, keys = true, {[200] = true}
+local ok, errorMessage = coroutine.resume(threads[1]); assert(ok, errorMessage)
+assert(pause and sent[#sent][1] == 'ofm:requestRespawn', 'Dead player can pause and requests recovery')
+handlers['ofm:respawnCharacter'](saved)
+assert(not dead and not frozen and not invincible and not cam, 'Death recovery restores a controllable live character')
+local requestsAfterRespawn = #sent
+coroutine.resume(threads[1])
+assert(#sent == requestsAfterRespawn, 'A living player stops requesting death recovery')
 handlers.onResourceStop('ofm_core')
 assert(not cam and not frozen and not invincible)
 originalPrint('Client flow checks passed: preview, cancel, save confirmation, retry, selection and spawn cleanup.')

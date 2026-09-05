@@ -54,6 +54,10 @@ local function apply(value, preview)
     local ped = PlayerPedId()
     NetworkResurrectLocalPlayer(-1037.7, -2737.8, 20.17, 180.0, true, false)
     ped = PlayerPedId()
+    SetEntityHealth(ped, GetEntityMaxHealth(ped))
+    ClearPedTasksImmediately(ped)
+    ClearPedBloodDamage(ped)
+    AnimpostfxStop('DeathFailOut')
     SetPedDefaultComponentVariation(ped)
     appearance(ped, value)
     SetEntityHeading(ped, 180.0)
@@ -112,6 +116,31 @@ RegisterNetEvent('ofm:spawnCharacter', function(character)
     if apply(character.appearance, false) then
         playing, menu, pending = true, nil, false
         print(('Open Freemode character %s (slot %d) loaded. Test progress will reset.'):format(character.id, character.slot))
+    end
+end)
+
+RegisterNetEvent('ofm:respawnCharacter', function(character)
+    if not playing or changing or not IsEntityDead(PlayerPedId()) then return end
+    DoScreenFadeOut(250)
+    apply(character.appearance, false)
+end)
+
+CreateThread(function()
+    local lastRequest = -2000
+    while true do
+        if playing and IsEntityDead(PlayerPedId()) then
+            -- Death must not trap the tester without access to pause/settings.
+            EnableControlAction(0, 199, true)
+            EnableControlAction(0, 200, true)
+            if IsControlJustPressed(0, 199) or IsControlJustPressed(0, 200) then SetPauseMenuActive(true) end
+            if not changing and GetGameTimer() - lastRequest >= 1000 then
+                lastRequest = GetGameTimer()
+                TriggerServerEvent('ofm:requestRespawn')
+            end
+            Wait(0)
+        else
+            Wait(250)
+        end
     end
 end)
 
