@@ -4,6 +4,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the tested development image to private GHCR
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -42,3 +47,70 @@ jobs:
         run: node scripts/test-image.mjs
       - name: Restore matched SQL and files into an isolated deployment
         run: node scripts/test-recovery.mjs
+
+  publication-scan:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    uses: ./.github/workflows/secret-scan.yml
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish && github.ref == 'refs/heads/main' && github.repository == 'vrrdnt/open-freemode'
+    needs: [verify, publication-scan]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    concurrency:
+      group: ghcr-development
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/vrrdnt/open-freemode
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Build and test the exact image to publish
+        run: |
+          docker build --platform linux/amd64 \
+            --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
+            --label org.opencontainers.image.revision="$GITHUB_SHA" \
+            -t open-freemode:development .
+          node scripts/test-image.mjs
+          node scripts/test-recovery.mjs
+      - name: Require private visibility before publishing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          code=$(curl --silent --show-error --output "$RUNNER_TEMP/package.json" --write-out '%{http_code}' \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            https://api.github.com/users/vrrdnt/packages/container/open-freemode)
+          case "$code" in
+            404) ;; # New GHCR packages default to private.
+            200) jq -e '.visibility == "private"' "$RUNNER_TEMP/package.json" ;;
+            *) echo "Package visibility check failed (HTTP $code)"; exit 1 ;;
+          esac
+      - name: Publish, verify registry pull, and update development tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          tag="$IMAGE:sha-$GITHUB_SHA"
+          expected=$(docker image inspect open-freemode:development --format '{{.Id}}')
+          docker tag open-freemode:development "$tag"
+          docker push "$tag"
+          gh api /users/vrrdnt/packages/container/open-freemode --jq '.visibility' | grep -x private
+          docker pull "$tag"
+          test "$(docker image inspect "$tag" --format '{{.Id}}')" = "$expected"
+          digest=$(docker image inspect "$tag" --format '{{index .RepoDigests 0}}')
+          docker tag "$tag" "$IMAGE:dev"
+          docker push "$IMAGE:dev"
+          printf 'Image: `%s`\n\nDigest: `%s`\n\nVisibility: private.\n' "$tag" "$digest" >> "$GITHUB_STEP_SUMMARY"
+          echo "Published image digest: $digest"
+      - name: Remove registry login
+        if: always()
+        run: docker logout ghcr.io

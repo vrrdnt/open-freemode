@@ -1,5 +1,5 @@
 {
-  "_comment": "Generated with npm run egg -- IMAGE. Build and make IMAGE available to Wings before installation.",
+  "_comment": "Generated with npm run egg -- IMAGE. Configure Wings registry access before installation. Pin a published digest for controlled updates.",
   "meta": {
     "version": "PLCN_v1",
     "update_url": null
@@ -10,7 +10,7 @@
   "description": "Tester-only foundation. One Enhanced runtime image and one external database. See docs/development.md.",
   "features": null,
   "docker_images": {
-    "open-freemode:development": "open-freemode:development"
+    "ghcr.io/vrrdnt/open-freemode:dev": "ghcr.io/vrrdnt/open-freemode:dev"
   },
   "file_denylist": [],
   "startup": "python3 /opt/open-freemode/scripts/launcher.py",
@@ -22,7 +22,7 @@
   "scripts": {
     "installation": {
       "script": "#!/bin/bash\nset -eu\npython3 /opt/open-freemode/scripts/launcher.py install --data-dir /mnt/server\n",
-      "container": "open-freemode:development",
+      "container": "ghcr.io/vrrdnt/open-freemode:dev",
       "entrypoint": "bash"
     }
   },

@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-const image = process.argv[2] || 'open-freemode:development';
+const image = process.argv[2] || 'ghcr.io/vrrdnt/open-freemode:dev';
 if (!/^[a-zA-Z0-9][a-zA-Z0-9._/:@-]*$/.test(image)) throw new Error('Supply a Docker image reference');
 const settings = [
   ['SERVER_NAME', 'Server name', 'Open Freemode Development', ['required', 'string', 'max:128']],
@@ -13,7 +13,7 @@ const settings = [
   ['DB_PASSWORD', 'Dedicated database password', '', ['required', 'string']],
 ];
 const egg = {
-  _comment: 'Generated with npm run egg -- IMAGE. Build and make IMAGE available to Wings before installation.',
+  _comment: 'Generated with npm run egg -- IMAGE. Configure Wings registry access before installation. Pin a published digest for controlled updates.',
   meta: { version: 'PLCN_v1', update_url: null },
   name: 'Open Freemode Enhanced (development)',
   author: '13125677+vrrdnt@users.noreply.github.com',
