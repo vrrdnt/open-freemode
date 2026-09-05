@@ -161,9 +161,24 @@ def command(app):
 
 
 def supervise(arguments, env, cwd, grace=5):
-    # A pipe selects Cfx's line-oriented console instead of its terminal editor,
-    # which ignores the LF that Wings appends to each submitted command.
-    process = subprocess.Popen(arguments, env=env, cwd=cwd, start_new_session=True, stdin=subprocess.PIPE)
+    # Keep Cfx on a real terminal, translating Wings' LF to terminal Enter (CR).
+    # Its pipe-based console can hang while shutting down after a fatal error.
+    bridge_console = os.isatty(0)
+    master, slave = None, None
+    if bridge_console:
+        import pty
+        import tty
+        master, slave = pty.openpty()
+        tty.setraw(slave)
+    try:
+        process = subprocess.Popen(arguments, env=env, cwd=cwd, start_new_session=True, stdin=slave)
+    except BaseException:
+        if master is not None:
+            os.close(master)
+        raise
+    finally:
+        if slave is not None:
+            os.close(slave)
     stopped_at = None
     input_stopped = threading.Event()
 
@@ -179,20 +194,17 @@ def supervise(arguments, env, cwd, grace=5):
                 normalized = bytearray()
                 for byte in data:
                     if byte != 10 or not previous_cr:
-                        normalized.append(10 if byte == 13 else byte)
+                        normalized.append(13 if byte == 10 else byte)
                     previous_cr = byte == 13
-                process.stdin.write(normalized)
-                process.stdin.flush()
+                offset = 0
+                while offset < len(normalized):
+                    offset += os.write(master, normalized[offset:])
         except (OSError, ValueError):
-            pass  # Native exit/stop closes its console pipe.
-        finally:
-            try:
-                process.stdin.close()
-            except OSError:
-                pass
+            pass  # Native exit/stop closes its terminal.
 
-    input_thread = threading.Thread(target=console_input, daemon=True)
-    input_thread.start()
+    input_thread = threading.Thread(target=console_input, daemon=True) if bridge_console else None
+    if input_thread:
+        input_thread.start()
 
     def send(sig):
         try:
@@ -220,7 +232,10 @@ def supervise(arguments, env, cwd, grace=5):
         send(signal.SIGKILL)
         process.wait()
         input_stopped.set()
-        input_thread.join(timeout=1)
+        if input_thread:
+            input_thread.join(timeout=1)
+        if master is not None:
+            os.close(master)
         for sig, handler in previous.items():
             signal.signal(sig, handler)
 

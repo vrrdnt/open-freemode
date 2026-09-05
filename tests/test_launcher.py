@@ -105,14 +105,26 @@ class LauncherTests(unittest.TestCase):
 
     @unittest.skipUnless(os.name == 'posix', 'POSIX process groups are required')
     def test_console_accepts_panel_and_terminal_line_endings(self):
+        import pty
+        import tty
         received = self.root / 'commands.txt'
-        child = (f'import sys; from pathlib import Path; '
-                 f'Path({str(received)!r}).write_text(sys.stdin.read()); raise SystemExit(7)')
+        child = ('import os; from pathlib import Path; data=b""\n'
+                 'assert os.isatty(0)\n'
+                 'while len(data) < 14: data += os.read(0, 14-len(data))\n'
+                 f'Path({str(received)!r}).write_bytes(data); raise SystemExit(7)')
         runner = (f'import sys,os; sys.path.insert(0,{str(SCRIPTS)!r}); import launcher; '
                   f'sys.exit(launcher.supervise([sys.executable,"-c",{child!r}],os.environ,{str(self.root)!r}))')
-        result = subprocess.run([sys.executable, '-c', runner], input=b'one\ntwo\rthree\r\n', timeout=5)
-        self.assertEqual(result.returncode, 7)
-        self.assertEqual(received.read_text(), 'one\ntwo\nthree\n')
+        master, slave = pty.openpty()
+        try:
+            tty.setraw(slave)
+            process = subprocess.Popen([sys.executable, '-c', runner], stdin=slave)
+            self.addCleanup(lambda: process.kill() if process.poll() is None else None)
+            os.write(master, b'one\ntwo\rthree\r\n')
+            self.assertEqual(process.wait(timeout=5), 7)
+        finally:
+            os.close(master)
+            os.close(slave)
+        self.assertEqual(received.read_bytes(), b'one\rtwo\rthree\r')
 
     @unittest.skipUnless(os.name == 'posix', 'POSIX process groups are required')
     def test_child_exit_status_is_preserved(self):
