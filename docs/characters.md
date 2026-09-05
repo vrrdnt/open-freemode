@@ -13,6 +13,10 @@
 
 The controls use the game's frontend bindings: arrow keys / controller D-pad to browse and change, Enter / A to select, Backspace / B to go back (default bindings). On-screen prompts follow the active device. Reconnect to select the other slot in this release.
 
+The creator groups edits into Heritage, Features and Appearance, with separate right-aligned values and blend/feature bars. Prompts use the game's [INSTRUCTIONAL_BUTTONS Scaleform](https://docs.fivem.net/docs/game-references/instructional-buttons/) instead of rendering control tokens as ordinary text. The panel scales with aspect ratio and respects the horizontal safe zone. This is an approximation of the native creator's presentation; the original lineup scene and full creator interface are still pending.
+
+Operator feedback confirmed keyboard arrows work, but the first UI rendered raw button IDs and omitted values. The presentation update addresses those render paths; its actual Enhanced glyphs/layout require a new screenshot check. It keeps schema 2 and all character data unchanged. Update the image/resources using the procedure below, giving the preserved resources directory a new suffix if needed.
+
 Not yet included: the full heritage/cosmetic/clothing catalogue, character naming/deletion, post-creation appearance changes, mouse pointing, the original lineup scene, tutorial, finances or second-character rank copying. Default clothing is temporary. The editor's numeric IDs and native styling are development presentation, not a claim of exact GTA Online UI fidelity. Both real keyboard and controller use and Enhanced visual results still require an operator test.
 
 ## Reference record CHAR-01
