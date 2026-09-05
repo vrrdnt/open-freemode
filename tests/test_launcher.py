@@ -9,6 +9,10 @@ import sys
 import tempfile
 import time
 import unittest
+import hashlib
+import io
+import shutil
+import tarfile
 
 SCRIPTS = Path(__file__).resolve().parents[1] / 'scripts'
 spec = importlib.util.spec_from_file_location('launcher', SCRIPTS / 'launcher.py')
@@ -27,6 +31,28 @@ class LauncherTests(unittest.TestCase):
         launcher.seed(self.data, self.app)
         self.env = dict(os.environ, FIVEM_LICENSE_KEY='synthetic-test-key', DB_HOST='database.example.invalid',
                         DB_USER='test-user', DB_NAME='ofm_test', DB_PASSWORD='test;=:@/ "\\$() value')
+
+    def test_runtime_download_is_verified_atomic_and_cached(self):
+        archive = self.root / 'fixture.tar.xz'
+        with tarfile.open(archive, 'w:xz') as bundle:
+            for name in ['alpine/lib/ld-musl-x86_64.so.1', 'alpine/opt/cfx-server/cfx-server']:
+                member = tarfile.TarInfo(name)
+                member.size = 7
+                bundle.addfile(member, io.BytesIO(b'fixture'))
+        (self.app / 'scripts').mkdir()
+        shutil.copyfile(SCRIPTS / 'fetch-runtime.py', self.app / 'scripts/fetch-runtime.py')
+        lock = {'build': 'fixture', 'url': archive.as_uri(), 'sha256': '0' * 64}
+        lockfile = self.app / 'runtime.lock.json'
+        lockfile.write_text(json.dumps(lock))
+        with self.assertRaisesRegex(ValueError, 'download failed'):
+            launcher.runtime_root(self.data, self.app, os.environ)
+        self.assertEqual(list((self.data / 'runtime').iterdir()), [])
+        lock['sha256'] = hashlib.sha256(archive.read_bytes()).hexdigest()
+        lockfile.write_text(json.dumps(lock))
+        target = launcher.runtime_root(self.data, self.app, os.environ)
+        archive.unlink()
+        self.assertEqual(launcher.runtime_root(self.data, self.app, os.environ), target)
+        self.assertTrue(Path(launcher.command(target)[0]).is_file())
 
     def test_reinstall_preserves_operator_files(self):
         operator = self.data / 'config/operator.cfg'

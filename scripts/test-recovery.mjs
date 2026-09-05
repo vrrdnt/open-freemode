@@ -141,7 +141,7 @@ try {
       '--publish', '127.0.0.1::30120/tcp', '--publish', '127.0.0.1::30120/udp', image);
     containers.push(game);
     console.log('Restored deployment verified; checking authenticated native startup.');
-    const deadline = Date.now() + 60000;
+    const deadline = Date.now() + 120000;
     let logs;
     do {
       logs = docker('logs', game);

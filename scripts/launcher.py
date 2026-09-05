@@ -125,12 +125,33 @@ def configure(data, env):
     return child_env
 
 
+def runtime_root(data, app, environment):
+    checksum = json.loads((app / 'runtime.lock.json').read_text())['sha256']
+    cache = data / 'runtime'
+    target = cache / checksum
+    if cache.is_symlink() or target.is_symlink():
+        raise ValueError('Runtime cache must not be a symlink')
+    cache.mkdir(exist_ok=True)
+    if not target.exists():
+        with tempfile.TemporaryDirectory(prefix='.download-', dir=cache) as temporary:
+            staged = Path(temporary) / 'bundle'
+            result = subprocess.run([sys.executable, str(app / 'scripts/fetch-runtime.py'),
+                                     str(app / 'runtime.lock.json'), str(staged / 'runtime')],
+                                    env=environment, capture_output=True)
+            if result.returncode != 0:
+                raise ValueError('Pinned runtime download failed; check Cfx connectivity and retry')
+            command(staged)
+            staged.rename(target)
+        print('Pinned Enhanced runtime downloaded and verified.', flush=True)
+    return target
+
+
 def command(app):
     alpine = app / 'runtime/alpine'
     loader = alpine / 'lib/ld-musl-x86_64.so.1'
     server = alpine / 'opt/cfx-server/cfx-server'
     if not loader.is_file() or not server.is_file():
-        raise ValueError('Pinned Enhanced runtime is missing; rebuild the image')
+        raise ValueError('Pinned Enhanced runtime cache is incomplete; preserve it and retry with a fresh cache')
     # Enhanced still requires this argument from its official run.sh, even though
     # the artifact no longer contains a physical citizen directory.
     return [str(loader), '--library-path', f'{alpine}/lib:{alpine}/usr/lib', '--', str(server),
@@ -190,7 +211,8 @@ def main():
             return 0
         if args.mode == 'migrate':
             return subprocess.call(['node', str(app / 'scripts/migrate.mjs'), str(data / 'config/database.json')], env=environment)
-        return supervise(command(app) + ['+exec', 'server.cfg'], environment, data / 'server-data')
+        runtime = runtime_root(data, app, environment)
+        return supervise(command(runtime) + ['+exec', 'server.cfg'], environment, data / 'server-data')
     except (ValueError, OSError) as error:
         # OSError text may include private paths; only our fixed validation messages are shown.
         print(str(error) if isinstance(error, ValueError) else 'Launcher filesystem/process error; check private paths and permissions.', file=sys.stderr)

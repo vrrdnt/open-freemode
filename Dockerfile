@@ -16,7 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 ca-cert
 WORKDIR /opt/open-freemode
 COPY runtime.lock.json ./
 COPY scripts/fetch-runtime.py scripts/fetch-runtime.py
-RUN python3 scripts/fetch-runtime.py runtime.lock.json runtime
 COPY --from=build /build/build/resources resources/
 COPY --from=build /build/node_modules node_modules/
 COPY package.json package-lock.json LICENSE ./

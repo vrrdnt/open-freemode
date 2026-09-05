@@ -6,7 +6,7 @@ A public-source project designing a GTA Online-like freemode experience for **Fi
 
 Start with the [development runbook](docs/development.md). Pelican controls FXServer directly; embedded txAdmin is deferred because its Enhanced runtime hangs with Docker's default security profile. No Docker security overrides are required by this package.
 
-For deployments without node-side builds, use the private GHCR image and [registry setup/update instructions](docs/registry.md). The generated egg references `ghcr.io/vrrdnt/open-freemode:dev`; Wings needs registry read access.
+For deployments without node-side builds, use the GHCR image and [registry setup/update instructions](docs/registry.md). The generated egg references `ghcr.io/vrrdnt/open-freemode:dev`. The container downloads and verifies the pinned Cfx runtime on first start, then reuses its persistent cache.
 
 ## Project direction
 

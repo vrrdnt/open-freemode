@@ -10,7 +10,7 @@ Keep exact dependency versions, upstream locations, licenses, checksums where su
 
 ## Source and runtime packaging
 
-One released game image should contain the selected runtime, txAdmin, and our custom resources, subject to upstream redistribution rights. Check the distribution terms for the selected FXServer artifacts before choosing whether a public image embeds them or retrieves a pinned artifact during installation. Publish our complete build/installation definitions either way. Licensed dependencies must have a documented operator-supplied path if redistribution is unavailable.
+The published application image contains our resources and dependencies. The launcher retrieves the checksum-pinned FXServer artifact directly from Cfx on first start and reuses a persistent cache. Cfx and txAdmin binaries are not redistributed in GHCR layers. This keeps one game container without requiring node-side builds. Our complete build/download definitions remain public.
 
 The first image will target Linux amd64 and FiveM Enhanced. Pin the application release, dependencies, and verified upstream artifacts. A reproducible build means another operator can resolve the declared inputs and obtain the tested package; do not claim byte-for-byte deterministic images until that has also been verified.
 
@@ -51,4 +51,4 @@ Release publication should use least-privilege CI permissions. Image publishing,
 
 ## Planned operator experience
 
-An operator should eventually be able to import the egg, select a released image, allocate the game and administration ports, provision a dedicated database, enter their own settings, and start the server. The package should initialize an empty deployment, apply supported migrations, and retain data on restart or replacement. This is the intended workflow, not something the current documentation-only repository can perform.
+An operator can import the egg, select the published application image, allocate the game port, provision a dedicated database and enter their own settings. The foundation initializes an empty deployment and preserves its account data on replacement. txAdmin is deferred. Installed Pelican behavior still requires operator verification; see the registry and development runbooks.

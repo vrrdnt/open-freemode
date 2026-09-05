@@ -1,6 +1,6 @@
 # GitHub Container Registry
 
-The operator image is published privately as `ghcr.io/vrrdnt/open-freemode`. It includes the pinned Enhanced runtime and requires no node-side build. Source remains public; private image access does not grant third-party redistribution rights.
+The application image is published as `ghcr.io/vrrdnt/open-freemode` and requires no node-side build. It contains our application and its dependencies. On first start, the container downloads the pinned Enhanced runtime directly from Cfx, verifies its SHA-256, and caches it under the persistent `runtime` directory. Subsequent starts reuse that cache; a changed runtime pin downloads a separate version. There is still only one game container and one external database.
 
 ## Publish an update
 
@@ -10,23 +10,13 @@ In GitHub Actions, run **Foundation checks** on `main` with **publish** selected
 gh workflow run foundation.yml --ref main -f publish=true
 ```
 
-Ordinary pushes and pull requests only test. Explicit publication requires the foundation tests and secret scan to pass. The publishing job tests its exact image before uploading, verifies private package visibility and a registry pull, then updates `:dev`. It uses GitHub's temporary workflow token; no personal registry password belongs in repository secrets.
+Ordinary pushes and pull requests only test. Explicit publication requires the foundation tests and secret scan to pass. The publishing job tests its exact image before uploading, verifies a registry pull, then updates `:dev`. It uses GitHub's temporary workflow token; no personal registry password belongs in repository secrets.
 
 Each publication produces `:sha-FULL_SOURCE_COMMIT` and records the image digest in the workflow summary. `:dev` tracks the most recently completed publication. Tags can move on a repeated build; use `ghcr.io/vrrdnt/open-freemode@sha256:...` from the successful run for an exact deployment.
 
-## Give Wings read access
+## Use the image in Wings
 
-Create a GitHub personal access token **classic** with `read:packages` for an account allowed to read this package. Keep it private. Merge the following into the existing `docker` section of `/etc/pelican/config.yml`, preserving other settings:
-
-```yaml
-docker:
-  registries:
-    ghcr.io:
-      username: YOUR_GITHUB_USERNAME
-      password: YOUR_READ_PACKAGES_TOKEN
-```
-
-Apply the Wings configuration using the node's normal service procedure. This credential is for Wings image pulls, not a FiveM startup variable. A Docker CLI login by itself does not establish that Wings has the required registry configuration. See [Pelican private registries](https://pelican.dev/docs/wings/optional-config/#private-registries) and [GitHub registry authentication](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic).
+A public package can be pulled without registry credentials. The first start also needs outbound HTTPS access to the pinned Cfx download URL. Startup refuses a failed download or checksum mismatch, and never installs a partial download as the active cache. Keep the existing persistent volume on updates so cached runtimes are retained. See [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
 
 The included egg uses `ghcr.io/vrrdnt/open-freemode:dev` for both installation and runtime. For a pinned deployment, generate an egg using the published digest:
 

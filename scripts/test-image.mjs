@@ -30,7 +30,7 @@ try {
     // validation under Docker's default security profile, with and without TTY.
     container = docker('run', '--detach', ...(pass ? ['--interactive', '--tty'] : []), '--mount', mount,
       ...fixtures.flatMap(value => ['--env', value]), image);
-    const deadline = Date.now() + 30000;
+    const deadline = Date.now() + 120000;
     while (docker('inspect', '--format', '{{.State.Running}}', container) === 'true') {
       assert.ok(Date.now() < deadline, 'Native process did not finish the invalid-key probe');
       await delay(250);

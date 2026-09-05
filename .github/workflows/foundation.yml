@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish the tested development image to private GHCR
+        description: Publish the tested application image to GHCR
         type: boolean
         default: false
 
@@ -82,18 +82,8 @@ jobs:
             -t open-freemode:development .
           node scripts/test-image.mjs
           node scripts/test-recovery.mjs
-      - name: Require private visibility before publishing
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          code=$(curl --silent --show-error --output "$RUNNER_TEMP/package.json" --write-out '%{http_code}' \
-            --header "Authorization: Bearer $GH_TOKEN" \
-            https://api.github.com/users/vrrdnt/packages/container/open-freemode)
-          case "$code" in
-            404) ;; # New GHCR packages default to private.
-            200) jq -e '.visibility == "private"' "$RUNNER_TEMP/package.json" ;;
-            *) echo "Package visibility check failed (HTTP $code)"; exit 1 ;;
-          esac
+      - name: Ensure the public image does not bundle the Cfx runtime
+        run: docker run --rm open-freemode:development test ! -e /opt/open-freemode/runtime
       - name: Publish, verify registry pull, and update development tag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -103,13 +93,14 @@ jobs:
           expected=$(docker image inspect open-freemode:development --format '{{.Id}}')
           docker tag open-freemode:development "$tag"
           docker push "$tag"
-          gh api /users/vrrdnt/packages/container/open-freemode --jq '.visibility' | grep -x private
+          gh api /users/vrrdnt/packages/container/open-freemode --jq '.visibility'
           docker pull "$tag"
           test "$(docker image inspect "$tag" --format '{{.Id}}')" = "$expected"
           digest=$(docker image inspect "$tag" --format '{{index .RepoDigests 0}}')
+          docker --config "$RUNNER_TEMP/anonymous-registry" pull "$digest"
           docker tag "$tag" "$IMAGE:dev"
           docker push "$IMAGE:dev"
-          printf 'Image: `%s`\n\nDigest: `%s`\n\nVisibility: private.\n' "$tag" "$digest" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Image: `%s`\n\nDigest: `%s`\n\nCfx runtime is downloaded directly on first start.\n' "$tag" "$digest" >> "$GITHUB_STEP_SUMMARY"
           echo "Published image digest: $digest"
       - name: Remove registry login
         if: always()

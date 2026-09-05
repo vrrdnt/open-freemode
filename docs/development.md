@@ -21,7 +21,7 @@ The generated egg uses `^SIGTERM`. The inspected [Panel converter](https://githu
 | Bundler | esbuild 0.25.12 |
 | Integration database | MariaDB 11.4 image digest in `scripts/test-database.mjs` |
 
-The Dockerfile downloads the pinned artifact from Cfx and checks its checksum before extraction. It makes Alpine's absolute internal symlinks relative to the bundled Alpine root, then applies Python's safe tar data filter. No patched Cfx or txAdmin executable/source is shipped. GitHub Actions can publish an operator-private image to GHCR; see [registry setup](registry.md). No public runtime redistribution clearance is claimed. Base package security updates can change build results; byte-identical reproduction is not claimed.
+On first start, the launcher downloads the pinned artifact directly from Cfx and checks its checksum before extraction. It makes Alpine's absolute internal symlinks relative to the bundled Alpine root, then applies Python's safe tar data filter. The verified download is atomically installed under persistent `runtime/SHA256/runtime`; later starts reuse it. Failed downloads do not populate an active cache. The GHCR image does not include Cfx or txAdmin binaries; see [registry setup](registry.md). Base package security updates can change build results; byte-identical reproduction is not claimed.
 
 mysql2 receives structured options. The oxmysql candidate's connection-string parser did not preserve every tested delimiter representation, so this first resource uses the underlying driver directly. It adds only the profile and schema operations needed now; there is no general SQL export available to clients. Third-party licenses remain with their dependencies: the image retains production `node_modules` and their license files, Cfx's attribution file, and the base image notices. Our MIT license covers our original source.
 
@@ -57,7 +57,7 @@ This adds native resource startup, console commands, SQL outage/recovery, databa
 
 This procedure is ready for operator validation; it has not yet passed a real Pelican import/install/client join.
 
-1. Configure [Wings access to the private GHCR image](registry.md#give-wings-read-access). The checked-in egg refers to `ghcr.io/vrrdnt/open-freemode:dev`; no node-side build is required. Wings must resolve it for both installation and runtime. For a pinned digest or a locally built image, run `npm run egg -- YOUR_IMAGE_REFERENCE` before importing the generated JSON. Use immutable image digests for controlled updates.
+1. Use the [GHCR image](registry.md#use-the-image-in-wings). The checked-in egg refers to `ghcr.io/vrrdnt/open-freemode:dev`; no node-side build is required. Wings must resolve it for both installation and runtime, and the game container needs outbound HTTPS for the initial Cfx download. For a pinned digest or a locally built image, run `npm run egg -- YOUR_IMAGE_REFERENCE` before importing the generated JSON. Use immutable image digests for controlled updates.
 2. Import `pelican/egg-open-freemode.json`. Create a staging server using the image; assign its primary game port for TCP and UDP. No txAdmin allocation is needed. Allow one database and provision it through Database Hosts. This does not install a database service: Pelican must already be able to reach a configured MySQL/MariaDB host.
 3. Set the egg's private variables: `FIVEM_LICENSE_KEY`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `SERVER_NAME`, and `MAX_PLAYERS`. Use the game's per-database account, never the Database Host provisioning account. The database address must be reachable from the game container; `localhost` refers to that container. Slot count defaults to 30 with a development cap of 48; entitlement and load capacity still require verification.
 4. Install. The temporary installer seeds `/mnt/server`; Wings must hand the persistent files back to runtime UID/GID 1000. The image runtime generates configuration at `/home/container`. Installation preserves existing operator files and refuses conflicting resource content.
@@ -110,10 +110,10 @@ For restoration, restore matched files and a SQL dump to **separate** storage an
 
 Local evidence, 6 September 2026:
 
-- Image build: pinned Enhanced download passed SHA-256 verification.
+- Image/startup: the application image omits the Cfx runtime; the first-start pinned Enhanced download passed SHA-256 verification and the replacement container reused it.
 - Native probe: resource discovery and synthetic-key rejection observed with default Docker security, both ordinary and interactive consoles. The launcher reports this invalid startup as failure.
 - Persistent image fixture: replacement containers preserve operator configuration; runtime UID 1000 and private file mode 0600 verified.
-- Python launcher fixtures: seven passed, including a real child that ignores SIGTERM and cannot survive supervisor cleanup.
+- Python launcher fixtures: eight passed, including a real child that ignores SIGTERM and cannot survive supervisor cleanup, rejected checksum mismatch, atomic runtime installation and offline cache reuse.
 - Real MariaDB fixture: ten tests passed, covering concurrent profile creation, reconnection, schema locking, interrupted initialization, malformed partial tables, foreign/newer schema rejection and special-character credentials.
 - Lua admission harness: authorization, database/resource failure, console-only status, duplicate identity, source-ID transition, spawn replay and reconnect decisions passed with mocked natives.
 - Matched backup fixture: SQL and persistent files restored into separate storage; account IDs/timestamps, operator settings, replacement credentials and source isolation verified.
