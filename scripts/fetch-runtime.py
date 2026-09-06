@@ -29,4 +29,4 @@ with tempfile.TemporaryDirectory() as temporary:
                                                    posixpath.dirname(member.name))
             return tarfile.data_filter(member, target)
         bundle.extractall(destination, filter=runtime_filter)
-print(f"Verified Enhanced build {lock['build']}.")
+print(f"Verified runtime build {lock['build']}.")

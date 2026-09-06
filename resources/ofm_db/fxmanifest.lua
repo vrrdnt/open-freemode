@@ -1,7 +1,0 @@
-fx_version 'cerulean'
-game 'gta5'
-node_version '22'
-server_only 'yes'
-author 'Open Freemode contributors'
-version '0.1.0-dev'
-server_script 'server.js'

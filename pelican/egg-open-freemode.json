@@ -4,25 +4,25 @@
     "version": "PLCN_v1",
     "update_url": null
   },
-  "name": "Open Freemode Enhanced (development)",
+  "name": "Open Freemode Legacy (development)",
   "author": "13125677+vrrdnt@users.noreply.github.com",
   "uuid": "49b03c85-cc59-4a27-99d5-3d87c4e106ba",
-  "description": "Tester-only foundation. One Enhanced runtime image and one external database. See docs/development.md.",
+  "description": "Tester-only Legacy Qbox freemode foundation. Racing, TDM, pursuits and pizza delivery are planned. See docs/install.md.",
   "features": null,
   "docker_images": {
-    "ghcr.io/vrrdnt/open-freemode:dev": "ghcr.io/vrrdnt/open-freemode:dev"
+    "ghcr.io/vrrdnt/open-freemode:legacy-dev": "ghcr.io/vrrdnt/open-freemode:legacy-dev"
   },
   "file_denylist": [],
   "startup": "python3 /opt/open-freemode/scripts/launcher.py",
   "config": {
     "files": "{}",
-    "startup": "{\"done\":\"[ofm_db] Schema 2 ready.\",\"strip_ansi\":true}",
+    "startup": "{\"done\":\"[ofm_session] Legacy foundation started.\",\"strip_ansi\":true}",
     "stop": "^SIGTERM"
   },
   "scripts": {
     "installation": {
       "script": "#!/bin/bash\nset -eu\npython3 /opt/open-freemode/scripts/launcher.py install --data-dir /mnt/server\n",
-      "container": "ghcr.io/vrrdnt/open-freemode:dev",
+      "container": "ghcr.io/vrrdnt/open-freemode:legacy-dev",
       "entrypoint": "bash"
     }
   },

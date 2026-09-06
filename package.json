@@ -6,10 +6,8 @@
   "license": "MIT",
   "engines": { "node": ">=22" },
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "test": "node --test tests/*.test.mjs",
+    "test:runtime": "node scripts/test-legacy.mjs",
     "egg": "node scripts/generate-egg.mjs"
   },
-  "dependencies": { "mysql2": "3.24.3" },
-  "devDependencies": { "esbuild": "0.25.12" }
+  "dependencies": { "mysql2": "3.24.3" }
 }

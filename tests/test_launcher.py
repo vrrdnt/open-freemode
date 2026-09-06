@@ -1,5 +1,5 @@
 import importlib.util
-import base64
+from urllib.parse import urlsplit, unquote
 import json
 import os
 from pathlib import Path
@@ -35,7 +35,7 @@ class LauncherTests(unittest.TestCase):
     def test_runtime_download_is_verified_atomic_and_cached(self):
         archive = self.root / 'fixture.tar.xz'
         with tarfile.open(archive, 'w:xz') as bundle:
-            for name in ['alpine/lib/ld-musl-x86_64.so.1', 'alpine/opt/cfx-server/cfx-server']:
+            for name in ['alpine/opt/cfx-server/ld-musl-x86_64.so.1', 'alpine/opt/cfx-server/FXServer']:
                 member = tarfile.TarInfo(name)
                 member.size = 7
                 bundle.addfile(member, io.BytesIO(b'fixture'))
@@ -72,8 +72,10 @@ class LauncherTests(unittest.TestCase):
         self.assertNotIn('TXHOST_API_TOKEN', environment)
         self.assertNotIn(self.env['DB_PASSWORD'], (self.data / 'server-data/server.cfg').read_text())
         encoded = next(line.split(' ', 2)[2] for line in (self.data / 'server-data/server.cfg').read_text().splitlines()
-                       if line.startswith('set ofm_db_options '))
-        self.assertEqual(json.loads(base64.b64decode(encoded)), config)
+                       if line.startswith('set mysql_connection_string '))
+        uri = urlsplit(encoded.strip('"'))
+        self.assertEqual(unquote(uri.password), config['password'])
+        self.assertEqual(unquote(uri.username), config['user'])
         if os.name == 'posix':
             self.assertEqual((self.data / 'config/database.json').stat().st_mode & 0o777, 0o600)
 

@@ -1,10 +1,9 @@
 {
-  "edition": "enhanced",
+  "edition": "legacy",
   "platform": "linux-amd64",
-  "build": 139,
-  "url": "https://downloads.cfx-services.net/prod/01a05860-423e-79d7-ab9c-5b3fb86640b8/cfx-server_linux_x64.tar.xz",
-  "sha256": "552e701caf22b06867bc8943dcf3abf7a1ab8b9be786db13e42338b8684cfe6a",
-  "txadmin": "9.0.0-beta-646aba9a",
-  "source": "https://docs.fivem.net/docs/server-download/?platform=enhanced&os=linux",
-  "checked": "2026-09-05"
+  "build": 35245,
+  "url": "https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/35245-6efb47dff473c0e2a12fb50b08d74c0eb24a50d5/fx.tar.xz",
+  "sha256": "16fcffd53a30a3909cbb2cfd26f89f950a59452792cafd0eda2174bdfeef9b2f",
+  "source": "https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/",
+  "checked": "2026-09-06"
 }

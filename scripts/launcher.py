@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Pelican entrypoint. Operator values are data, never shell source."""
 import argparse
-import base64
 import hashlib
 import json
 import os
@@ -15,6 +14,7 @@ import sys
 import tempfile
 import threading
 import time
+from urllib.parse import quote
 
 
 def private_write(path, text):
@@ -110,15 +110,33 @@ def configure(data, env):
         f'endpoint_add_tcp "0.0.0.0:{game_port}"',
         f'endpoint_add_udp "0.0.0.0:{game_port}"',
         f'sv_maxclients {slots}',
-        'set onesync on',
         'sv_master1 ""',
         'sv_scriptHookAllowed 0',
-        'set sv_devMode false',
-        'add_convar_permission ofm_db read ofm_db_options',
-        'set ofm_db_options ' + base64.b64encode(json.dumps(options, ensure_ascii=True).encode()).decode(),
+        'set sv_enforceGameBuild 3258',
+        'set mysql_connection_string ' + quoted('mysql://' + quote(options['user'], safe='') + ':'
+            + quote(options['password'], safe='') + '@' + options['host'] + ':' + str(options['port'])
+            + '/' + quote(options['database'], safe='') + '?charset=utf8mb4'),
+        'setr inventory:framework "qbx"',
+        'setr inventory:weaponmismatch false',
+        'setr qbx:enableBridge true',
+        'setr voice_useNativeAudio true',
+        'setr voice_useSendingRangeOnly false',
+        'setr voice_defaultCycle "F11"',
+        'exec resources/ofm_session/freemode.cfg',
         'ensure chat',
-        'ensure ofm_db',
-        'ensure ofm_core',
+        'ensure spawnmanager',
+        'ensure sessionmanager',
+        'ensure hardcap',
+        'ensure baseevents',
+        'ensure oxmysql',
+        'ensure ox_lib',
+        'ensure qbx_core',
+        'ensure qbx_vehicles',
+        'ensure ox_inventory',
+        'ensure illenium-appearance',
+        'ensure pma-voice',
+        'ensure vMenu',
+        'ensure ofm_session',
     ]
     private_write(data / 'config/database.json', json.dumps(options, ensure_ascii=True) + '\n')
     private_write(data / 'server-data/server.cfg', '\n'.join(lines) + '\n')
@@ -144,19 +162,18 @@ def runtime_root(data, app, environment):
                 raise ValueError('Pinned runtime download failed; check Cfx connectivity and retry')
             command(staged)
             staged.rename(target)
-        print('Pinned Enhanced runtime downloaded and verified.', flush=True)
+        print('Pinned Legacy runtime downloaded and verified.', flush=True)
     return target
 
 
 def command(app):
     alpine = app / 'runtime/alpine'
-    loader = alpine / 'lib/ld-musl-x86_64.so.1'
-    server = alpine / 'opt/cfx-server/cfx-server'
+    loader = alpine / 'opt/cfx-server/ld-musl-x86_64.so.1'
+    server = alpine / 'opt/cfx-server/FXServer'
     if not loader.is_file() or not server.is_file():
-        raise ValueError('Pinned Enhanced runtime cache is incomplete; preserve it and retry with a fresh cache')
-    # Enhanced still requires this argument from its official run.sh, even though
-    # the artifact no longer contains a physical citizen directory.
-    return [str(loader), '--library-path', f'{alpine}/lib:{alpine}/usr/lib', '--', str(server),
+        raise ValueError('Pinned Legacy runtime cache is incomplete; preserve it and retry with a fresh cache')
+    # Match the pinned Legacy artifact's run.sh, including its bundled V8 libraries.
+    return [str(loader), '--library-path', f'{alpine}/usr/lib/v8:{alpine}/lib:{alpine}/usr/lib', '--', str(server),
             '+set', 'citizen_dir', str(server.parent / 'citizen') + '/']
 
 
@@ -258,10 +275,13 @@ def main():
         if args.mode == 'configure':
             print('Private configuration generated.')
             return 0
-        if args.mode == 'migrate':
-            return subprocess.call(['node', str(app / 'scripts/migrate.mjs'), str(data / 'config/database.json')], env=environment)
+        migration = subprocess.call(['node', str(app / 'scripts/migrate-legacy.mjs'),
+                                     str(data / 'config/database.json')], env=environment)
+        if migration or args.mode == 'migrate':
+            return migration
         runtime = runtime_root(data, app, environment)
-        return supervise(command(runtime) + ['+exec', 'server.cfg'], environment, data / 'server-data')
+        return supervise(command(runtime) + ['+set', 'onesync', 'on', '+exec', 'server.cfg'],
+                         environment, data / 'server-data')
     except (ValueError, OSError) as error:
         # OSError text may include private paths; only our fixed validation messages are shown.
         print(str(error) if isinstance(error, ValueError) else 'Launcher filesystem/process error; check private paths and permissions.', file=sys.stderr)

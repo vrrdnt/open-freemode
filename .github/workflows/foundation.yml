@@ -26,29 +26,18 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npm run build
-      - run: node --test tests/resource.test.mjs
-      - run: node --test tests/appearance.test.mjs
+      - name: Verify pinned resource archives
+        run: python3 scripts/fetch-resources.py
       - run: python3 -m unittest discover -s tests -p 'test_*.py' -v
-      - name: Lua syntax and admission decisions
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq lua5.4
-          find resources -name '*.lua' -print0 | xargs -0 -n1 luac -p
-          lua tests/core.test.lua
-          lua tests/client.test.lua
-      - name: Real disposable MariaDB integration
-        run: node scripts/test-database.mjs
       - name: Egg generation stays reproducible
         run: |
           npm run egg
           git diff --exit-code -- pelican/egg-open-freemode.json
-      - name: Build pinned Enhanced image
+      - name: Build pinned Legacy image
         run: docker build --platform linux/amd64 -t open-freemode:development .
       - name: Native startup through synthetic license rejection
-        run: node scripts/test-image.mjs
-      - name: Restore matched SQL and files into an isolated deployment
-        run: node scripts/test-recovery.mjs
+        run: node scripts/test-legacy.mjs open-freemode:development
+
 
   publication-scan:
     if: github.event_name == 'workflow_dispatch' && inputs.publish
@@ -60,7 +49,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     concurrency:
-      group: ghcr-development
+      group: ghcr-legacy-development
       cancel-in-progress: false
     permissions:
       contents: read
@@ -82,8 +71,8 @@ jobs:
             --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.revision="$GITHUB_SHA" \
             -t open-freemode:development .
-          node scripts/test-image.mjs
-          node scripts/test-recovery.mjs
+          node scripts/test-legacy.mjs open-freemode:development
+
       - name: Ensure the public image does not bundle the Cfx runtime
         run: docker run --rm open-freemode:development test ! -e /opt/open-freemode/runtime
       - name: Publish, verify registry pull, and update development tag
@@ -100,8 +89,8 @@ jobs:
           test "$(docker image inspect "$tag" --format '{{.Id}}')" = "$expected"
           digest=$(docker image inspect "$tag" --format '{{index .RepoDigests 0}}')
           docker --config "$RUNNER_TEMP/anonymous-registry" pull "$digest"
-          docker tag "$tag" "$IMAGE:dev"
-          docker push "$IMAGE:dev"
+          docker tag "$tag" "$IMAGE:legacy-dev"
+          docker push "$IMAGE:legacy-dev"
           printf 'Image: `%s`\n\nDigest: `%s`\n\nCfx runtime is downloaded directly on first start.\n' "$tag" "$digest" >> "$GITHUB_STEP_SUMMARY"
           echo "Published image digest: $digest"
       - name: Remove registry login

@@ -3,10 +3,9 @@
 !package.json
 !package-lock.json
 !runtime.lock.json
+!resources.lock.json
+!legacy-resources/
+!legacy-resources/**
 !LICENSE
-!lib/
-!lib/**
 !scripts/
 !scripts/**
-!resources/
-!resources/**

@@ -1,0 +1,65 @@
+[
+  {
+    "sha256": "a4816894deeb3a55a377bbbf548df87ce8c339d4259428ab08bad9292ab30312",
+    "url": "https://codeload.github.com/Qbox-project/qbx_core/zip/c1c3ca16721cd14eb814cfb95e8f8631690d247d",
+    "name": "qbx_core",
+    "archive_root": "qbx_core-c1c3ca16721cd14eb814cfb95e8f8631690d247d",
+    "source": "https://github.com/Qbox-project/qbx_core/tree/c1c3ca16721cd14eb814cfb95e8f8631690d247d"
+  },
+  {
+    "sha256": "371f6c51ba76979e457c1b8bb34217c5951fac73d5b6e8d73176f8271b5185ed",
+    "url": "https://codeload.github.com/citizenfx/cfx-server-data/zip/e265cb251c88260533c847d4a1a2838c7d828a66",
+    "name": "cfx-server-data",
+    "archive_root": "cfx-server-data-e265cb251c88260533c847d4a1a2838c7d828a66",
+    "source": "https://github.com/citizenfx/cfx-server-data/tree/e265cb251c88260533c847d4a1a2838c7d828a66"
+  },
+  {
+    "sha256": "8d94ecb34bf98056050f6d14a20e4a72952b4d1de3854040a3974894cfebd257",
+    "url": "https://codeload.github.com/AvarianKnight/pma-voice/zip/6c9d96ed7a02e30912f1a0ce92629bf9afbbca8c",
+    "name": "pma-voice",
+    "archive_root": "pma-voice-6c9d96ed7a02e30912f1a0ce92629bf9afbbca8c",
+    "source": "https://github.com/AvarianKnight/pma-voice/tree/6c9d96ed7a02e30912f1a0ce92629bf9afbbca8c"
+  },
+  {
+    "sha256": "1df6724dfc1d2d287299ff023a29c9e999eb77832cb918a4f1761d5c18a54501",
+    "url": "https://github.com/overextended/ox_lib/releases/download/v3.39.0/ox_lib.zip",
+    "name": "ox_lib",
+    "archive_root": "ox_lib",
+    "source": "https://github.com/overextended/ox_lib/releases/tag/v3.39.0"
+  },
+  {
+    "sha256": "c072acd028cd8f75f3fab1a594e85c620a4c77cfb5db77a4ea64bcdefd362ae1",
+    "url": "https://github.com/overextended/ox_inventory/releases/download/v2.47.9/ox_inventory.zip",
+    "name": "ox_inventory",
+    "archive_root": "ox_inventory",
+    "source": "https://github.com/overextended/ox_inventory/releases/tag/v2.47.9"
+  },
+  {
+    "sha256": "29fa0992174257f548dc1ef8dc9431fd1ce995696b5c58fbe98ca0cb6a0e6aba",
+    "url": "https://github.com/overextended/oxmysql/releases/download/v2.14.1/oxmysql.zip",
+    "name": "oxmysql",
+    "archive_root": "oxmysql",
+    "source": "https://github.com/overextended/oxmysql/releases/tag/v2.14.1"
+  },
+  {
+    "sha256": "947ba68aada743dbd1edf6e50c848a80864215b2b5ac41f9680c1339b35b3117",
+    "url": "https://github.com/iLLeniumStudios/illenium-appearance/releases/download/v5.7.0/illenium-appearance.zip",
+    "name": "illenium-appearance",
+    "archive_root": "illenium-appearance",
+    "source": "https://github.com/iLLeniumStudios/illenium-appearance/releases/tag/v5.7.0"
+  },
+  {
+    "sha256": "24b1c364aeb71b582110fff2d1e6ae59444f5aefd8f24250c55386786290e1bf",
+    "url": "https://github.com/Qbox-project/qbx_vehicles/releases/download/v1.4.2/qbx_vehicles.zip",
+    "name": "qbx_vehicles",
+    "archive_root": "qbx_vehicles",
+    "source": "https://github.com/Qbox-project/qbx_vehicles/releases/tag/v1.4.2"
+  },
+  {
+    "sha256": "1281c47bdbe11a8a1f7fe8548b9e5bc7df18dd5ab9cff2e83bc64fb3b4a47051",
+    "url": "https://github.com/TomGrobbe/vMenu/releases/download/v3.8.58/vMenu-3.8.58.zip",
+    "name": "vMenu",
+    "archive_root": "",
+    "source": "https://github.com/TomGrobbe/vMenu/releases/tag/v3.8.58"
+  }
+]

@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 
-const image = process.argv[2] || 'ghcr.io/vrrdnt/open-freemode:dev';
+const image = process.argv[2] || 'ghcr.io/vrrdnt/open-freemode:legacy-dev';
 if (!/^[a-zA-Z0-9][a-zA-Z0-9._/:@-]*$/.test(image)) throw new Error('Supply a Docker image reference');
 const settings = [
   ['SERVER_NAME', 'Server name', 'Open Freemode Development', ['required', 'string', 'max:128']],
@@ -15,17 +15,17 @@ const settings = [
 const egg = {
   _comment: 'Generated with npm run egg -- IMAGE. Configure Wings registry access before installation. Pin a published digest for controlled updates.',
   meta: { version: 'PLCN_v1', update_url: null },
-  name: 'Open Freemode Enhanced (development)',
+  name: 'Open Freemode Legacy (development)',
   author: '13125677+vrrdnt@users.noreply.github.com',
   uuid: '49b03c85-cc59-4a27-99d5-3d87c4e106ba',
-  description: 'Tester-only foundation. One Enhanced runtime image and one external database. See docs/development.md.',
+  description: 'Tester-only Legacy Qbox freemode foundation. Racing, TDM, pursuits and pizza delivery are planned. See docs/install.md.',
   features: null,
   docker_images: { [image]: image },
   file_denylist: [],
   startup: 'python3 /opt/open-freemode/scripts/launcher.py',
   config: {
     files: '{}',
-    startup: JSON.stringify({ done: '[ofm_db] Schema 2 ready.', strip_ansi: true }),
+    startup: JSON.stringify({ done: '[ofm_session] Legacy foundation started.', strip_ansi: true }),
     stop: '^SIGTERM',
   },
   scripts: { installation: {
