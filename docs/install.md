@@ -87,6 +87,8 @@ Wait for:
 
 Join with normal FiveM Legacy, create a character, reconnect, and confirm the character persists. Check `M` for the limited freemode menu, `F2` for inventory, `/guide` for the current feature summary, and verify that death returns the player to LSIA after five seconds. Then visit the **Pizza Delivery** blip in Vinewood, complete all five marked doors, confirm the $750 bank deposit, and verify the scooter disappears. `/pizza_cancel` must remove an abandoned route and scooter without paying it.
 
+For racing, spawn or obtain a vehicle, drive to the **Airport Dash** blip at LSIA and enter the marker as the driver. Start the race, confirm the vehicle remains frozen through the three-second countdown, drive through all nine checkpoints in order and verify the finish notification shows elapsed time, personal best, leaderboard rank and a $500 bank deposit. `/race_cancel` must end the run without deleting the player's vehicle or paying a result.
+
 ## Updating
 
 Follow [the registry update procedure](registry.md). Image replacement preserves the server volume and database. When the verified image bundle changes, the launcher installs it atomically and moves the previous resources into the persistent `recovery/` directory under a content-derived name. Remove that preserved copy only after the updated server has passed its gameplay checks.

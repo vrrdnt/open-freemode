@@ -42,4 +42,16 @@ assert(second.token ~= started.token)
 assert(manager:cancel(8).kind == 'pizza')
 assert(manager:cancel(8) == nil)
 
+local race = assert(manager:start(9, {
+    kind = 'race',
+    payout = 500,
+    radius = 13,
+    minimumStopSeconds = 1,
+    stops = {{ x = 10, y = 20, z = 30 }},
+}))
+assert(race.kind == 'race' and race.totalStops == 1)
+assert(select(2, manager:advance(9, race.token, 1, 13.1)) == 'too_far')
+local raceFinished = assert(manager:advance(9, race.token, 1, 13))
+assert(raceFinished.completed and raceFinished.kind == 'race' and raceFinished.payout == 500)
+
 print('Activity state lifecycle passed.')

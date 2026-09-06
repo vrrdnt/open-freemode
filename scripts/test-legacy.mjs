@@ -33,14 +33,18 @@ try {
     docker('run', '--rm', ...args, image, 'python3', '/opt/open-freemode/scripts/launcher.py', 'migrate');
   }
   const sql = query => docker('exec', db, 'sh', '-c', 'exec mariadb -N -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE" -e "$1"', 'query', query);
-  assert.equal(sql("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='ofm_test' AND table_name IN ('players','playerskins','player_outfits','bans','player_groups','ofm_activity_results')"), '6');
+  assert.equal(sql("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='ofm_test' AND table_name IN ('players','playerskins','player_outfits','bans','player_groups','ofm_activity_results','ofm_race_results')"), '7');
   sql("INSERT INTO playerskins (citizenid,model,skin) VALUES ('fixture','mp_m_freemode_01','{}')");
   sql("INSERT INTO players (citizenid,license,name,money,job,position,metadata) VALUES ('activity-fixture','license:fixture','Fixture','{}','{}','{}','{}')");
   sql("INSERT INTO ofm_activity_results (result_id,citizenid,activity,payout) VALUES ('fixture-result','activity-fixture','pizza',750)");
   sql("INSERT IGNORE INTO ofm_activity_results (result_id,citizenid,activity,payout) VALUES ('fixture-result','activity-fixture','pizza',999)");
   assert.equal(sql("SELECT CONCAT(COUNT(*),':',MAX(payout)) FROM ofm_activity_results WHERE result_id='fixture-result'"), '1:750', 'Activity result was not idempotent');
+  sql("INSERT INTO ofm_race_results (result_id,citizenid,race_id,elapsed_ms,payout) VALUES ('race-result','activity-fixture','airport_dash',65432,500)");
+  sql("INSERT IGNORE INTO ofm_race_results (result_id,citizenid,race_id,elapsed_ms,payout) VALUES ('race-result','activity-fixture','airport_dash',1,999)");
+  assert.equal(sql("SELECT CONCAT(COUNT(*),':',MIN(elapsed_ms),':',MAX(payout)) FROM ofm_race_results WHERE result_id='race-result'"), '1:65432:500', 'Race result was not idempotent');
   sql("DELETE FROM players WHERE citizenid='activity-fixture'");
   assert.equal(sql("SELECT COUNT(*) FROM ofm_activity_results WHERE result_id='fixture-result'"), '0', 'Activity result did not follow character deletion');
+  assert.equal(sql("SELECT COUNT(*) FROM ofm_race_results WHERE result_id='race-result'"), '0', 'Race result did not follow character deletion');
   const game = docker('run', '-dit', ...args, '--publish', '127.0.0.1::30120/tcp', image);
   containers.push(game);
   let logs = '';

@@ -19,10 +19,11 @@ The foundation works today:
 - Illenium Appearance, ox_inventory, pma-voice and vMenu;
 - airport spawn, freemode death recovery and `/guide`;
 - server-authoritative pizza delivery with randomized stops, a temporary scooter and one-time bank payout;
+- Airport Dash, a server-validated point-to-point time trial with persistent personal and global ranking;
 - tester admission through the `ofm.join` ACE permission;
 - immutable resource bundles suitable for Pelican and GHCR updates.
 
-Pizza delivery is ready for its first real-client gameplay pass. Racing, TDM, pursuits, owned-vehicle shops/garages and property gameplay remain upcoming milestones.
+Pizza delivery and Airport Dash are ready for real-client gameplay passes. Multiplayer race lobbies, TDM, pursuits, owned-vehicle shops/garages and property gameplay remain upcoming milestones.
 
 Start with [the fresh Pelican installation guide](docs/install.md). No backup import, copied server directory or node-side image build is required.
 

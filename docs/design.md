@@ -24,9 +24,9 @@ Complete the client walkthrough, then add a Qbox-compatible garage and vehicle s
 
 Pizza delivery is the first end-to-end activity. The current slice provides five randomized stops, a temporary scooter, server-side order/proximity/timing checks, an idempotent result ledger, bank payment and cleanup on cancellation, death, disconnect or resource shutdown. Its map placement, door coordinates, animation and driving feel still need a real-client pass.
 
-### 3. Racing
+### 3. Racing — first playable slice implemented, client validation pending
 
-Add lobby/queue flow, route definitions, checkpoint validation, timing, finish order, temporary race vehicles where required, and safe restoration. Start with curated routes; add player route creation only after result validation is stable.
+Airport Dash provides the first curated point-to-point route. It uses the vehicle the player is already driving, locks it for a three-second start, validates the same driver and vehicle at every ordered checkpoint, records elapsed time and personal/global standing, pays once and supports cancellation or death cleanup. Multiplayer lobby/queue flow, synchronized starts, finish order and temporary class-specific vehicles are the next racing step. Player route creation waits until multiplayer result validation is stable.
 
 ### 4. Team deathmatch
 
