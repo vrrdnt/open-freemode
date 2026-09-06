@@ -1,7 +1,13 @@
 local config = require 'config'
 local catalog = VehicleRules.index(config.dealer.catalog)
 local upgrades = VehicleRules.index(config.modshop.upgrades)
+local garages = config.garages
 local busy = {}
+
+assert(garages[config.defaultGarage], 'default garage is required')
+for id, garage in pairs(garages) do
+    assert(garage.id == id, 'garage key and id must match')
+end
 
 local function responseError(message)
     return { ok = false, message = message }
@@ -56,9 +62,16 @@ local function findSpawnedVehicle(vehicleId)
     end
 end
 
-local function spawnBayClear()
+local function garageAccess(source, garageId)
+    local garage = type(garageId) == 'string' and garages[garageId]
+    if not garage then return nil, false end
+    if garage.public then return garage, true end
+    return garage, garage.propertyId and exports.ofm_properties:Owns(source, garage.propertyId) or false
+end
+
+local function spawnBayClear(garage)
     for _, vehicle in ipairs(GetGamePool('CVehicle')) do
-        if vehicleNear(vehicle, config.garage.spawn, config.garage.spawnClearRadius) then return false end
+        if vehicleNear(vehicle, garage.spawn, garage.spawnClearRadius) then return false end
     end
     return true
 end
@@ -125,7 +138,7 @@ lib.callback.register('ofm_vehicles:purchase', function(source, catalogId, purch
         local vehicleId = exports.qbx_vehicles:CreatePlayerVehicle({
             model = item.model,
             citizenid = data.citizenid,
-            garage = config.garage.id,
+            garage = config.defaultGarage,
         })
         if not vehicleId then
             exports.qbx_core:AddMoney(source, 'bank', item.price, 'owned-vehicle-purchase-refund')
@@ -154,12 +167,15 @@ lib.callback.register('ofm_vehicles:purchase', function(source, catalogId, purch
     end)
 end)
 
-lib.callback.register('ofm_vehicles:list', function(source)
+lib.callback.register('ofm_vehicles:list', function(source, garageId)
     local data = playerData(source)
+    local garage, access = garageAccess(source, garageId)
     if not data then return responseError('Load a character before opening the garage.') end
     if activityBlocked(source) then return responseError('Finish or cancel your current activity first.') end
-    if not playerNear(source, config.garage.coords, config.garage.radius) then
-        return responseError('Visit Legion Square Garage to view owned vehicles.')
+    if not garage then return responseError('That garage does not exist.') end
+    if not access then return responseError('Purchase this property garage before using it.') end
+    if not playerNear(source, garage.coords, garage.radius) then
+        return responseError(('Visit %s to view owned vehicles.'):format(garage.name))
     end
 
     local results = {}
@@ -172,38 +188,43 @@ lib.callback.register('ofm_vehicles:list', function(source)
             state = vehicle.state,
             garage = vehicle.garage,
             available = vehicle.state ~= 2 and not spawned
-                and (vehicle.state == 0 or vehicle.garage == config.garage.id),
+                and (vehicle.state == 0 or vehicle.garage == garage.id),
             status = vehicle.state == 2 and 'Impounded'
                 or spawned and 'Out'
                 or vehicle.state == 0 and 'Recoverable'
-                or vehicle.garage == config.garage.id and 'Stored' or 'Other garage',
+                or vehicle.garage == garage.id and 'Stored'
+                or ('Stored at %s'):format(garages[vehicle.garage]
+                    and garages[vehicle.garage].name or vehicle.garage or 'another garage'),
         }
     end
     return { ok = true, vehicles = results }
 end)
 
-lib.callback.register('ofm_vehicles:spawn', function(source, vehicleId)
+lib.callback.register('ofm_vehicles:spawn', function(source, garageId, vehicleId)
     return locked(source, function()
         local data = playerData(source)
-        local near, ped = playerNear(source, config.garage.coords, config.garage.radius)
+        local garage, access = garageAccess(source, garageId)
         if not data then return responseError('Load a character before retrieving a vehicle.') end
         if activityBlocked(source) then return responseError('Finish or cancel your current activity first.') end
-        if not near then return responseError('Visit Legion Square Garage to retrieve a vehicle.') end
+        if not garage then return responseError('That garage does not exist.') end
+        if not access then return responseError('Purchase this property garage before using it.') end
+        local near, ped = playerNear(source, garage.coords, garage.radius)
+        if not near then return responseError(('Visit %s to retrieve a vehicle.'):format(garage.name)) end
         if GetVehiclePedIsIn(ped, false) ~= 0 then return responseError('Leave your current vehicle first.') end
         vehicleId = tonumber(vehicleId)
         local vehicle = vehicleId and exports.qbx_vehicles:GetPlayerVehicle(vehicleId,
             { citizenid = data.citizenid })
         if not vehicle then return responseError('That vehicle does not belong to this character.') end
         if vehicle.state == 2 then return responseError('That vehicle is impounded.') end
-        if vehicle.state == 1 and vehicle.garage ~= config.garage.id then
+        if vehicle.state == 1 and vehicle.garage ~= garage.id then
             return responseError('That vehicle is stored at another garage.')
         end
         if findSpawnedVehicle(vehicle.id) then
             return responseError('That vehicle is already out.')
         end
-        if not spawnBayClear() then return responseError('The garage exit is blocked.') end
+        if not spawnBayClear(garage) then return responseError('The garage exit is blocked.') end
 
-        local spawn = config.garage.spawn
+        local spawn = garage.spawn
         local ok, netId, entity = pcall(qbx.spawnVehicle, {
             model = vehicle.modelName,
             spawnSource = vec4(spawn.x, spawn.y, spawn.z, spawn.w),
@@ -216,7 +237,7 @@ lib.callback.register('ofm_vehicles:spawn', function(source, vehicleId)
         Entity(entity).state:set('vehicleid', vehicle.id, false)
         Entity(entity).state:set('ofmOwnedVehicle', true, true)
         local saved = exports.qbx_vehicles:SaveVehicle(entity, {
-            garage = config.garage.id,
+            garage = garage.id,
             props = vehicle.props,
         })
         if not saved then
@@ -229,13 +250,16 @@ lib.callback.register('ofm_vehicles:spawn', function(source, vehicleId)
     end)
 end)
 
-lib.callback.register('ofm_vehicles:store', function(source, netId)
+lib.callback.register('ofm_vehicles:store', function(source, garageId, netId)
     return locked(source, function()
-        local near, ped = playerNear(source, config.garage.coords, config.garage.radius)
         if activityBlocked(source) then return responseError('Finish or cancel your current activity first.') end
-        if not near then return responseError('Drive into Legion Square Garage to store the vehicle.') end
+        local garage, access = garageAccess(source, garageId)
+        if not garage then return responseError('That garage does not exist.') end
+        if not access then return responseError('Purchase this property garage before using it.') end
+        local near, ped = playerNear(source, garage.coords, garage.radius)
+        if not near then return responseError(('Drive into %s to store the vehicle.'):format(garage.name)) end
         local vehicle = tonumber(netId) and NetworkGetEntityFromNetworkId(tonumber(netId)) or 0
-        if vehicle == 0 or not DoesEntityExist(vehicle) or not vehicleNear(vehicle, config.garage.coords, config.garage.radius) then
+        if vehicle == 0 or not DoesEntityExist(vehicle) or not vehicleNear(vehicle, garage.coords, garage.radius) then
             return responseError('The vehicle is not inside the garage marker.')
         end
         if GetVehiclePedIsIn(ped, false) ~= vehicle or GetPedInVehicleSeat(vehicle, -1) ~= ped then
@@ -248,7 +272,7 @@ lib.callback.register('ofm_vehicles:store', function(source, netId)
         local props = currentDynamicProps(vehicle, owned.props)
         local saved = exports.qbx_vehicles:SaveVehicle(vehicle, {
             state = 1,
-            garage = config.garage.id,
+            garage = garage.id,
             props = props,
         })
         if not saved then return responseError('The owned vehicle could not be saved.') end

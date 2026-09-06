@@ -16,6 +16,7 @@ try {
     await connection.query(sql.replaceAll('DEFAULT CHARSET=latin1', 'DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'));
   }
   await connection.query(await readFile(new URL('../resources/ofm_activities/schema.sql', import.meta.url), 'utf8'));
+  await connection.query(await readFile(new URL('../resources/ofm_properties/schema.sql', import.meta.url), 'utf8'));
   await connection.query(await readFile(new URL('../resources/ofm_vehicles/schema.sql', import.meta.url), 'utf8'));
   await connection.query(await readFile(new URL('../resources/ofm_hub/schema.sql', import.meta.url), 'utf8'));
   console.log('Open Freemode Legacy database ready.');

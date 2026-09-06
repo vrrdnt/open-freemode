@@ -21,13 +21,17 @@ const handbook = [
     'F7 opens this handbook. M opens restricted vMenu for temporary cars and weapons. F2 opens your persistent inventory. E interacts with world markers.',
     'Activity controls take priority while a match is active. Use /pizza_cancel, /race_cancel, /tdm_cancel, or /pursuit_cancel to abandon the matching mode safely.'
   ] },
-  { group: 'World', id: 'money', title: 'Money and progression', kicker: 'Persistent world', summary: 'Bank funds connect activities, vehicles and future properties.', body: [
+  { group: 'World', id: 'money', title: 'Money and progression', kicker: 'Persistent world', summary: 'Bank funds connect activities, vehicles and apartment garages.', body: [
     'Activity rewards go to your Qbox bank account once the server validates the result. Duplicate finish events and retries do not create another payout.',
     'Vehicle purchases and modifications charge the bank on the server. Temporary vMenu equipment is free but never becomes persistent property.'
   ] },
   { group: 'World', id: 'vehicles', title: 'Owned and temporary vehicles', kicker: 'Vehicles', summary: 'Know which cars survive a restart.', body: [
-    'Cars bought at Premium Deluxe Motorsport are owned by the active character. Retrieve and store them at Legion Square Garage; Burton Customs saves supported repairs, performance parts and colors.',
+    'Cars bought at Premium Deluxe Motorsport are owned by the active character. Retrieve and store them at Legion Square Garage or at an apartment garage that character has purchased; Burton Customs saves supported repairs, performance parts and colors.',
     'Cars spawned from vMenu and cars issued by activities are temporary. A copied plate cannot turn either one into an owned vehicle, and the garage rejects them.'
+  ] },
+  { group: 'World', id: 'properties', title: 'Apartment garages', kicker: 'Properties', summary: 'Purchase permanent private garage access for one character.', body: [
+    'Alta Street and Del Perro sell persistent garage access from your bank account. Each purchase belongs to the active character and unlocks storage and retrieval at that location.',
+    'These first properties provide an activated apartment garage without a housing interior. Legion Square remains available without a property purchase.'
   ] },
   { group: 'Activities', id: 'activity-lifecycle', title: 'How activities work', kicker: 'Fair play', summary: 'Queue, prepare, play, resolve, restore.', body: [
     'Every structured mode validates entry in the world, saves your freemode state, and moves players into an isolated session where required. The server owns checkpoints, score, timing and payouts.',
@@ -124,7 +128,7 @@ function renderActivities() {
 const slides = [
   ['Welcome to Open Freemode', 'A shared Los Santos built around fast access to racing, combat, pursuits and delivery work.', 'Your character, appearance, money, inventory and purchased cars persist. The free cars and weapons in vMenu are there for casual freemode play.'],
   ['One world, four activities', 'Use the activity browser to set a GPS route. Entry still happens at a real destination in the world.', 'The server validates teams, vehicles, checkpoints, scores and rewards. When a mode ends, its temporary rules and equipment are removed before you return.'],
-  ['Build your garage', 'Activity payouts fund persistent cars and upgrades.', 'Buy a starter vehicle at Premium Deluxe Motorsport, retrieve it at Legion Square Garage and customize it at Burton Customs. vMenu cars stay temporary.'],
+  ['Build your garage', 'Activity payouts fund persistent cars, upgrades and private garage access.', 'Buy a starter vehicle at Premium Deluxe Motorsport, retrieve it at Legion Square, and customize it at Burton Customs. Alta Street and Del Perro offer purchasable apartment garages. vMenu cars stay temporary.'],
 ];
 
 function renderWelcome() {

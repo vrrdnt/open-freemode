@@ -1,6 +1,6 @@
 fx_version 'cerulean'
 game 'gta5'
-description 'Open Freemode owned vehicle shop, garage and modification integration'
+description 'Open Freemode purchasable property garage access'
 
 shared_scripts {
     '@ox_lib/init.lua',
@@ -10,10 +10,9 @@ shared_scripts {
 client_script 'client.lua'
 
 server_scripts {
-    '@qbx_core/modules/lib.lua',
     '@oxmysql/lib/MySQL.lua',
     'server/rules.lua',
     'server/main.lua',
 }
 
-dependencies { 'qbx_core', 'qbx_vehicles', 'ox_lib', 'oxmysql', 'ofm_activities', 'ofm_properties' }
+dependencies { 'qbx_core', 'ox_lib', 'oxmysql', 'ofm_activities' }

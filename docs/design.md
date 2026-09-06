@@ -18,7 +18,9 @@ This contract prevents four separate scripts from fighting over death, inventory
 
 ### 1. Foundation and owned vehicles — first playable slice implemented, client validation pending
 
-Premium Deluxe Motorsport sells three server-priced starter cars from bank funds and records each request once. Purchases create persistent Qbox `player_vehicles` records stored at Legion Square. That garage retrieves only the current character's vehicles, recovers vehicles left marked out after a restart, and saves health and dirt when storing. Burton Customs validates the driver and Qbox vehicle identity on the server before charging for repairs, performance upgrades or resprays and saving the resulting properties. vMenu and activity cars have no owned vehicle identity, so they cannot enter this persistent loop. Property garages can initially be activated locations tied to a character before a full housing system is chosen.
+Premium Deluxe Motorsport sells three server-priced starter cars from bank funds and records each request once. Purchases create persistent Qbox `player_vehicles` records stored at Legion Square. Garages retrieve only the current character's vehicles, recover vehicles left marked out after a restart, and save health and dirt when storing. Burton Customs validates the driver and Qbox vehicle identity on the server before charging for repairs, performance upgrades or resprays and saving the resulting properties. vMenu and activity cars have no owned vehicle identity, so they cannot enter this persistent loop.
+
+Alta Street and Del Perro provide the first selected property slice. Each is a permanent, character-owned garage entitlement purchased from bank funds through an idempotent server transaction. Ownership controls access to that garage, while the vehicle service remains the sole authority for storage and retrieval. This slice deliberately represents an activated apartment garage and does not include a housing interior; map placement, driveway clearance and interaction feel still require real-client validation.
 
 ### 2. Pizza delivery vertical slice — implemented, client validation pending
 

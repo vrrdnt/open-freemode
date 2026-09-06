@@ -19,7 +19,7 @@ const egg = {
   name: 'Open Freemode Legacy (development)',
   author: '13125677+vrrdnt@users.noreply.github.com',
   uuid: '49b03c85-cc59-4a27-99d5-3d87c4e106ba',
-  description: 'Legacy Qbox freemode with onboarding, handbook, owned vehicles and four integrated activities. See docs/install.md.',
+  description: 'Legacy Qbox freemode with onboarding, handbook, owned vehicles, property garages and four integrated activities. See docs/install.md.',
   features: null,
   docker_images: { [image]: image },
   file_denylist: [],

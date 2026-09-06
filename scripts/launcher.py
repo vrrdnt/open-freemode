@@ -160,6 +160,7 @@ def configure(data, env):
         'ensure pma-voice',
         'ensure vMenu',
         'ensure ofm_activities',
+        'ensure ofm_properties',
         'ensure ofm_vehicles',
         'ensure ofm_hub',
         'ensure ofm_session',

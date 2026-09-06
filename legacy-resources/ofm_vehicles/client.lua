@@ -64,10 +64,10 @@ local function openDealer()
     lib.showContext('ofm_vehicle_dealer')
 end
 
-local function retrieveVehicle(vehicleId)
+local function retrieveVehicle(garageId, vehicleId)
     if submitting then return end
     submitting = true
-    local response = lib.callback.await('ofm_vehicles:spawn', false, vehicleId)
+    local response = lib.callback.await('ofm_vehicles:spawn', false, garageId, vehicleId)
     submitting = false
     if not response or not response.ok then
         return notify(response and response.message or 'The vehicle could not be retrieved.', 'error')
@@ -75,10 +75,12 @@ local function retrieveVehicle(vehicleId)
     notify((response.recovered and 'Recovered' or 'Retrieved') .. (' owned vehicle %s.'):format(response.plate), 'success')
 end
 
-local function openGarage()
+local function openGarage(garageId)
     if submitting then return end
+    local garage = config.garages[garageId]
+    if not garage then return notify('That garage does not exist.', 'error') end
     submitting = true
-    local response = lib.callback.await('ofm_vehicles:list', false)
+    local response = lib.callback.await('ofm_vehicles:list', false, garageId)
     submitting = false
     if not response or not response.ok then
         return notify(response and response.message or 'The garage could not be opened.', 'error')
@@ -92,28 +94,34 @@ local function openGarage()
             description = selected.status,
             icon = 'car-side',
             disabled = not selected.available,
-            onSelect = function() retrieveVehicle(selected.id) end,
+            onSelect = function() retrieveVehicle(garageId, selected.id) end,
         }
     end
     if #options == 0 then
         options[1] = { title = 'No owned vehicles', description = 'Purchase one at Premium Deluxe Motorsport.', disabled = true }
     end
-    lib.registerContext({ id = 'ofm_legion_garage', title = config.garage.name, options = options })
-    lib.showContext('ofm_legion_garage')
+    local contextId = 'ofm_garage_' .. garage.id
+    lib.registerContext({ id = contextId, title = garage.name, options = options })
+    lib.showContext(contextId)
 end
 
-local function storeVehicle()
+local function useGarage(garageId)
     if submitting then return end
+    local garage = config.garages[garageId]
+    if not garage then return notify('That garage does not exist.', 'error') end
     local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
-    if vehicle == 0 then return openGarage() end
+    if vehicle == 0 then return openGarage(garageId) end
     submitting = true
-    local response = lib.callback.await('ofm_vehicles:store', false, NetworkGetNetworkIdFromEntity(vehicle))
+    local response = lib.callback.await('ofm_vehicles:store', false, garageId,
+        NetworkGetNetworkIdFromEntity(vehicle))
     submitting = false
     if not response or not response.ok then
         return notify(response and response.message or 'The vehicle could not be stored.', 'error')
     end
     notify(('Stored owned vehicle %s.'):format(response.plate), 'success')
 end
+
+exports('UseGarage', useGarage)
 
 local function purchaseUpgrade(upgrade)
     if submitting then return end
@@ -163,7 +171,8 @@ end)
 
 local locations = {
     { data = config.dealer, sprite = 326, colour = 3, label = config.dealer.name },
-    { data = config.garage, sprite = 357, colour = 2, label = config.garage.name },
+    { data = config.garages[config.defaultGarage], sprite = 357, colour = 2,
+        label = config.garages[config.defaultGarage].name },
     { data = config.modshop, sprite = 72, colour = 5, label = config.modshop.name },
 }
 
@@ -209,7 +218,7 @@ CreateThread(function()
             elseif activeLocation == 2 then
                 local driving = GetVehiclePedIsIn(PlayerPedId(), false) ~= 0
                 showPrompt(driving and '[E] Store owned vehicle' or '[E] Open owned garage')
-                if IsControlJustReleased(0, 38) then hidePrompt() storeVehicle() end
+                if IsControlJustReleased(0, 38) then hidePrompt() useGarage(config.defaultGarage) end
             else
                 showPrompt('[E] Modify owned vehicle')
                 if IsControlJustReleased(0, 38) then hidePrompt() openModshop() end
