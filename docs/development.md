@@ -49,9 +49,10 @@ The pure activity state machine also runs outside FiveM:
 lua5.4 tests/activity_state.test.lua legacy-resources/ofm_activities/server/state.lua
 lua5.4 tests/race_queue.test.lua legacy-resources/ofm_activities/server/matchmaking.lua
 lua5.4 tests/combat_score.test.lua legacy-resources/ofm_activities/server/combat_score.lua
+lua5.4 tests/pursuit_state.test.lua legacy-resources/ofm_activities/server/pursuit_state.lua
 ```
 
-It covers activity reservation, pizza and race starts, forged tokens, wrong checkpoint order, proximity limits, timing limits, completion replay, cancellation, queue capacity, queue removal, lobby locking, TDM deaths, friendly fire, duplicate death suppression, respawning and score-limit victory. Native integration verifies every activity result schema and resource startup.
+It covers activity reservation, pizza and race starts, forged tokens, wrong checkpoint order, proximity limits, timing limits, completion replay, cancellation, queue capacity, queue removal, lobby locking, TDM deaths and score-limit victory, plus pursuit checkpoints, driver rules, eliminations, police respawns and timeouts. Native integration verifies every activity result schema and resource startup.
 
 Regenerate the Pelican egg and prove the checked-in artifact is current:
 

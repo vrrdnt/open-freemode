@@ -69,6 +69,8 @@ try {
     // Explicit opt-in private log path; never print native log contents automatically.
     if (process.env.OFM_TEST_LOG_FILE) writeFileSync(process.env.OFM_TEST_LOG_FILE, logs);
     assert.ok(logs.includes('[ofm_session] Legacy foundation started.'), 'Legacy resource readiness missing');
+    assert.ok(logs.includes('[ofm_activities] Terminal Clash TDM ready.'), 'TDM readiness missing');
+    assert.ok(logs.includes('[ofm_activities] City Escape cops and robbers ready.'), 'Pursuit readiness missing');
     assert.ok(!/SCRIPT ERROR|Error loading script|Failed to load script|Error parsing script/.test(logs), 'Resource error; inspect private test log');
     const endpoint = docker('port', game, '30120/tcp');
     const response = await (await fetch(`http://${endpoint}/info.json`)).text();

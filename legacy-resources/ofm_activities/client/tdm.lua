@@ -4,6 +4,7 @@ local queued = false
 local queueToken
 local tdm
 local promptVisible = false
+local promptText
 local redGroup = joaat('OFM_TDM_RED')
 local blueGroup = joaat('OFM_TDM_BLUE')
 local playerGroup = joaat('PLAYER')
@@ -20,15 +21,18 @@ local function notify(description, kind)
 end
 
 local function showPrompt(text)
+    if promptVisible and promptText == text then return end
     if promptVisible then lib.hideTextUI() end
     lib.showTextUI(text)
     promptVisible = true
+    promptText = text
 end
 
 local function hidePrompt()
     if not promptVisible then return end
     lib.hideTextUI()
     promptVisible = false
+    promptText = nil
 end
 
 local function teamGroup(team)
@@ -210,7 +214,7 @@ CreateThread(function()
 
     while true do
         local sleep = 750
-        if not tdm then
+        if not tdm and not LocalPlayer.state.ofmActivity then
             local coords = GetEntityCoords(PlayerPedId())
             local range = #(coords - vec3(config.queue.x, config.queue.y, config.queue.z))
             if range < 30.0 then

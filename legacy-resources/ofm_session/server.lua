@@ -11,7 +11,7 @@ end)
 
 RegisterCommand('ofm_status', function(src)
     if src ~= 0 then return end
-    print('[ofm_session] Legacy Qbox foundation running; pizza delivery, Airport Dash racing and Terminal Clash TDM are installed.')
+    print('[ofm_session] Legacy Qbox foundation running; pizza delivery, Airport Dash racing, Terminal Clash TDM and City Escape are installed.')
 end, true)
 
 CreateThread(function()

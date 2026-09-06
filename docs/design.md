@@ -32,9 +32,9 @@ Airport Dash provides the first curated point-to-point route. Solo mode locks th
 
 Terminal Clash queues 2–10 players outside Maze Bank Arena, assigns balanced red and blue teams, and moves them to an isolated Terminal arena. The first team to 15 validated enemy kills wins. Direct match weapons and armor are temporary, inventory access is locked during play, deaths respawn after four seconds, and persistent inventory is never modified. Results and payouts are recorded once per participant; winners receive $1,200 and losers $600. Suicides and friendly kills do not score, duplicate death events are ignored, and a team becoming empty cancels the match without rewards. Finish, forfeit, disconnect, character unload and resource shutdown restore routing and freemode state.
 
-### 5. Cops and robbers
+### 5. Cops and robbers — first playable slice implemented, client validation pending
 
-Build this on the shared activity contract with asymmetric teams, pursuit objectives, wanted/escape state, vehicle rules and round resolution. Police roleplay jobs are a separate concern from this match mode.
+City Escape queues 2–6 players on foot at Mission Row. The first queued player becomes the wanted robber with a temporary Sultan; the others become police with temporary cruisers. The robber has five minutes to drive the assigned vehicle through five server-validated checkpoints. Police win by killing the robber, destroying the getaway vehicle or running out the clock, while police deaths respawn with a replacement cruiser after five seconds. Both teams receive temporary pistols and armor, one-time match results and $1,500/$700 winner/loser payouts. An empty team cancels without rewards. Finish, cancellation, disconnect, character unload and resource shutdown remove activity vehicles and restore routing, controls, health, armor and the prior wanted level. Police roleplay jobs remain separate from this match mode.
 
 ## Interface direction
 

@@ -10,6 +10,7 @@ shared_scripts {
 client_scripts {
     'client/main.lua',
     'client/tdm.lua',
+    'client/pursuit.lua',
 }
 
 server_scripts {
@@ -17,8 +18,10 @@ server_scripts {
     'server/state.lua',
     'server/matchmaking.lua',
     'server/combat_score.lua',
+    'server/pursuit_state.lua',
     'server/main.lua',
     'server/tdm.lua',
+    'server/pursuit.lua',
 }
 
 dependencies { 'baseevents', 'qbx_core', 'ox_lib', 'ox_inventory', 'oxmysql' }

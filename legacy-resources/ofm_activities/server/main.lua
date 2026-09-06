@@ -82,6 +82,7 @@ end
 
 local function cancelActivity(source)
     if OFMCancelTdm and OFMCancelTdm(source) then return end
+    if OFMCancelPursuit and OFMCancelPursuit(source) then return end
     local wasQueued = raceQueue:remove(source) ~= nil
     local run = raceRuns[source]
     restoreRace(source, run)

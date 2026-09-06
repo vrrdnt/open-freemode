@@ -317,7 +317,7 @@ CreateThread(function()
 
     while true do
         local sleep = 750
-        if not active and not queued or active and active.kind == 'pizza' then
+        if not LocalPlayer.state.ofmActivity and not active and not queued or active and active.kind == 'pizza' then
             local coords = GetEntityCoords(PlayerPedId())
             local target = active and active.stop or config.pizza.depot
             local range = #(coords - vec3(target.x, target.y, target.z))
@@ -358,7 +358,7 @@ CreateThread(function()
         local sleep = 500
         local ped = PlayerPedId()
         local coords = GetEntityCoords(ped)
-        if not active and not queued then
+        if not LocalPlayer.state.ofmActivity and not active and not queued then
             local range = #(coords - vec3(start.x, start.y, start.z))
             if range < 35.0 then
                 sleep = 0
@@ -420,7 +420,7 @@ end)
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     local response = lib.callback.await('ofm_activities:status', false)
     if response and response.session then
-        if response.session.kind == 'tdm' then
+        if response.session.kind == 'tdm' or response.session.kind == 'pursuit' then
             return
         elseif response.session.kind == 'race' and response.session.phase == 'queued' then
             queued = true
