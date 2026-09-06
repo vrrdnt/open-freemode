@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 
 const image = process.argv[2] || 'ghcr.io/vrrdnt/open-freemode:legacy-dev';
 if (!/^[a-zA-Z0-9][a-zA-Z0-9._/:@-]*$/.test(image)) throw new Error('Supply a Docker image reference');
+const installer = 'ghcr.io/pelican-eggs/installers:debian@sha256:7430a7a609f307dd81b0582b34c0565d48e7f5d4719b448502c99af109006234';
 const settings = [
   ['SERVER_NAME', 'Server name', 'Open Freemode Development', ['required', 'string', 'max:128']],
   ['MAX_PLAYERS', 'Player limit', '30', ['required', 'integer', 'between:1,48']],
@@ -29,8 +30,8 @@ const egg = {
     stop: '^SIGTERM',
   },
   scripts: { installation: {
-    script: '#!/bin/bash\nset -eu\npython3 /opt/open-freemode/scripts/launcher.py install --data-dir /mnt/server\n',
-    container: image,
+    script: '#!/bin/bash\nset -eu\ntest -d /mnt/server\nprintf "Open Freemode volume ready; persistent files are initialized on first start.\\n"\n',
+    container: installer,
     entrypoint: 'bash',
   } },
   variables: settings.map(([env_variable, name, default_value, rules], index) => ({

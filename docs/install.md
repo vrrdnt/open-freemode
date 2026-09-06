@@ -25,7 +25,9 @@ For an initial small test server, allocate 8–10 GiB RAM, enough CPU for one FX
 4. Give the server a fresh, empty data directory. Do not upload files from the retired Enhanced build.
 5. Finish server creation and let Pelican run the egg installation script.
 
-The installation script only initializes persistent directories. The image already contains the verified resource bundle.
+The separate, pinned Pelican installer only validates that the server volume is mounted. The first normal start initializes persistent directories as the runtime container user, and the application image already contains the verified resource bundle.
+
+If installation reports `bash: /mnt/install/install.sh: Permission denied`, the egg still uses the application image as its installation container. Reimport the current egg, or edit its install-script container to the pinned `ghcr.io/pelican-eggs/installers:debian` digest from `pelican/egg-open-freemode.json`, keep the script entrypoint set to `bash`, save, and reinstall the server. This repair does not require replacing its database or server volume.
 
 ## 3. Allocate an empty database
 

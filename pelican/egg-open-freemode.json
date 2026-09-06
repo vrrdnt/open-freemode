@@ -21,8 +21,8 @@
   },
   "scripts": {
     "installation": {
-      "script": "#!/bin/bash\nset -eu\npython3 /opt/open-freemode/scripts/launcher.py install --data-dir /mnt/server\n",
-      "container": "ghcr.io/vrrdnt/open-freemode:legacy-dev",
+      "script": "#!/bin/bash\nset -eu\ntest -d /mnt/server\nprintf \"Open Freemode volume ready; persistent files are initialized on first start.\\n\"\n",
+      "container": "ghcr.io/pelican-eggs/installers:debian@sha256:7430a7a609f307dd81b0582b34c0565d48e7f5d4719b448502c99af109006234",
       "entrypoint": "bash"
     }
   },
