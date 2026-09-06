@@ -11,7 +11,7 @@ end)
 
 RegisterCommand('ofm_status', function(src)
     if src ~= 0 then return end
-    print('[ofm_session] Legacy Qbox foundation running; activities are not installed yet.')
+    print('[ofm_session] Legacy Qbox foundation running; pizza delivery is installed.')
 end, true)
 
 CreateThread(function()

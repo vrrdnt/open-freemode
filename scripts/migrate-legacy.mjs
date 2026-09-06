@@ -15,6 +15,7 @@ try {
     const sql = await readFile(new URL(`../resources/illenium-appearance/sql/${file}.sql`, import.meta.url), 'utf8');
     await connection.query(sql.replaceAll('DEFAULT CHARSET=latin1', 'DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'));
   }
+  await connection.query(await readFile(new URL('../resources/ofm_activities/schema.sql', import.meta.url), 'utf8'));
   console.log('Open Freemode Legacy database ready.');
 } catch {
   console.error('Legacy migration failed. Use a dedicated MariaDB database; verify private credentials and inspect schema compatibility. Enhanced databases are not converted in place.');

@@ -18,10 +18,11 @@ The foundation works today:
 - Qbox player persistence and vehicle ownership data model;
 - Illenium Appearance, ox_inventory, pma-voice and vMenu;
 - airport spawn, freemode death recovery and `/guide`;
+- server-authoritative pizza delivery with randomized stops, a temporary scooter and one-time bank payout;
 - tester admission through the `ofm.join` ACE permission;
 - immutable resource bundles suitable for Pelican and GHCR updates.
 
-Racing, TDM, pursuits, pizza delivery, owned-vehicle shops/garages and property gameplay are the next milestones. Their names in this repository describe the product direction, not already-shipped gameplay.
+Pizza delivery is ready for its first real-client gameplay pass. Racing, TDM, pursuits, owned-vehicle shops/garages and property gameplay remain upcoming milestones.
 
 Start with [the fresh Pelican installation guide](docs/install.md). No backup import, copied server directory or node-side image build is required.
 

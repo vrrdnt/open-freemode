@@ -43,6 +43,14 @@ node scripts/test-legacy.mjs
 
 The key file contains one `FIVEM_LICENSE_KEY=...` line and stays ignored. This path verifies that every required resource starts, the info endpoint omits credentials, graceful stop succeeds, the same container restarts against immutable resources, and SQL data persists. It still does not replace a real FiveM client walkthrough.
 
+The pure activity state machine also runs outside FiveM:
+
+```sh
+lua5.4 tests/activity_state.test.lua legacy-resources/ofm_activities/server/state.lua
+```
+
+It covers duplicate starts, forged tokens, wrong stop order, proximity limits, timing limits, completion replay and cancellation. Native integration still verifies the activity schema and resource startup.
+
 Regenerate the Pelican egg and prove the checked-in artifact is current:
 
 ```powershell

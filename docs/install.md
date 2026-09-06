@@ -85,7 +85,7 @@ Wait for:
 [ofm_session] Legacy foundation started.
 ```
 
-Join with normal FiveM Legacy, create a character, reconnect, and confirm the character persists. Check `M` for the limited freemode menu, `F2` for inventory, `/guide` for the current feature summary, and verify that death returns the player to LSIA after five seconds.
+Join with normal FiveM Legacy, create a character, reconnect, and confirm the character persists. Check `M` for the limited freemode menu, `F2` for inventory, `/guide` for the current feature summary, and verify that death returns the player to LSIA after five seconds. Then visit the **Pizza Delivery** blip in Vinewood, complete all five marked doors, confirm the $750 bank deposit, and verify the scooter disappears. `/pizza_cancel` must remove an abandoned route and scooter without paying it.
 
 ## Updating
 

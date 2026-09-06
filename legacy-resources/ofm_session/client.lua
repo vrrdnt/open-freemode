@@ -27,6 +27,6 @@ end)
 
 RegisterCommand('guide', function()
     lib.alertDialog({header = 'Welcome to Open Freemode', content =
-        'Press **M** for freemode vehicles and weapons. Use **F2** for inventory. Character appearance is saved by Qbox and Illenium Appearance.\n\nRacing, TDM, cops-and-robbers and pizza delivery are in development. Temporary spawned cars are not owned vehicles.',
+        'Press **M** for freemode vehicles and weapons. Use **F2** for inventory. Character appearance is saved by Qbox and Illenium Appearance.\n\nPizza delivery starts at Pizza This... in Vinewood; look for its map blip. Use **/pizza_cancel** to abandon a route. Racing, TDM and cops-and-robbers are in development. Temporary spawned cars are not owned vehicles.',
         centered = true})
 end, false)

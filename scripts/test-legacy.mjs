@@ -33,8 +33,14 @@ try {
     docker('run', '--rm', ...args, image, 'python3', '/opt/open-freemode/scripts/launcher.py', 'migrate');
   }
   const sql = query => docker('exec', db, 'sh', '-c', 'exec mariadb -N -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE" -e "$1"', 'query', query);
-  assert.equal(sql("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='ofm_test' AND table_name IN ('players','playerskins','player_outfits','bans','player_groups')"), '5');
+  assert.equal(sql("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='ofm_test' AND table_name IN ('players','playerskins','player_outfits','bans','player_groups','ofm_activity_results')"), '6');
   sql("INSERT INTO playerskins (citizenid,model,skin) VALUES ('fixture','mp_m_freemode_01','{}')");
+  sql("INSERT INTO players (citizenid,license,name,money,job,position,metadata) VALUES ('activity-fixture','license:fixture','Fixture','{}','{}','{}','{}')");
+  sql("INSERT INTO ofm_activity_results (result_id,citizenid,activity,payout) VALUES ('fixture-result','activity-fixture','pizza',750)");
+  sql("INSERT IGNORE INTO ofm_activity_results (result_id,citizenid,activity,payout) VALUES ('fixture-result','activity-fixture','pizza',999)");
+  assert.equal(sql("SELECT CONCAT(COUNT(*),':',MAX(payout)) FROM ofm_activity_results WHERE result_id='fixture-result'"), '1:750', 'Activity result was not idempotent');
+  sql("DELETE FROM players WHERE citizenid='activity-fixture'");
+  assert.equal(sql("SELECT COUNT(*) FROM ofm_activity_results WHERE result_id='fixture-result'"), '0', 'Activity result did not follow character deletion');
   const game = docker('run', '-dit', ...args, '--publish', '127.0.0.1::30120/tcp', image);
   containers.push(game);
   let logs = '';
@@ -56,7 +62,7 @@ try {
     const endpoint = docker('port', game, '30120/tcp');
     const response = await (await fetch(`http://${endpoint}/info.json`)).text();
     const info = JSON.parse(response);
-    for (const resource of ['chat','spawnmanager','sessionmanager','hardcap','baseevents','qbx_core','qbx_vehicles','ox_lib','ox_inventory','oxmysql','illenium-appearance','pma-voice','vMenu','ofm_session']) {
+    for (const resource of ['chat','spawnmanager','sessionmanager','hardcap','baseevents','qbx_core','qbx_vehicles','ox_lib','ox_inventory','oxmysql','illenium-appearance','pma-voice','vMenu','ofm_activities','ofm_session']) {
       assert.ok(info.resources.includes(resource), 'Missing resource: ' + resource);
     }
     assert.ok(!response.includes(password) && !response.includes(key), 'Info endpoint exposed a credential');

@@ -20,9 +20,9 @@ This contract prevents four separate scripts from fighting over death, inventory
 
 Complete the client walkthrough, then add a Qbox-compatible garage and vehicle shop. vMenu cars remain temporary; purchases create persistent `player_vehicles` records. LSC-style modification needs a shop/resource that validates ownership and stores vehicle properties. Property garages can initially be activated locations tied to a character before a full housing system is chosen.
 
-### 2. Pizza delivery vertical slice
+### 2. Pizza delivery vertical slice — implemented, client validation pending
 
-Pizza delivery is the first end-to-end activity because it exercises normal-world interaction, a job vehicle, route checkpoints, server-authoritative completion, payout and interruption recovery without complex matchmaking.
+Pizza delivery is the first end-to-end activity. The current slice provides five randomized stops, a temporary scooter, server-side order/proximity/timing checks, an idempotent result ledger, bank payment and cleanup on cancellation, death, disconnect or resource shutdown. Its map placement, door coordinates, animation and driving feel still need a real-client pass.
 
 ### 3. Racing
 

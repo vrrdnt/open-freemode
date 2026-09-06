@@ -136,6 +136,7 @@ def configure(data, env):
         'ensure illenium-appearance',
         'ensure pma-voice',
         'ensure vMenu',
+        'ensure ofm_activities',
         'ensure ofm_session',
     ]
     private_write(data / 'config/database.json', json.dumps(options, ensure_ascii=True) + '\n')

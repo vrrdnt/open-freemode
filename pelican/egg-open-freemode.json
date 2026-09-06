@@ -7,7 +7,7 @@
   "name": "Open Freemode Legacy (development)",
   "author": "13125677+vrrdnt@users.noreply.github.com",
   "uuid": "49b03c85-cc59-4a27-99d5-3d87c4e106ba",
-  "description": "Tester-only Legacy Qbox freemode foundation. Racing, TDM, pursuits and pizza delivery are planned. See docs/install.md.",
+  "description": "Legacy Qbox freemode foundation with pizza delivery. Racing, TDM and pursuits are planned. See docs/install.md.",
   "features": null,
   "docker_images": {
     "ghcr.io/vrrdnt/open-freemode:legacy-dev": "ghcr.io/vrrdnt/open-freemode:legacy-dev"
