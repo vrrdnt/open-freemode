@@ -7,13 +7,18 @@ shared_scripts {
     'config.lua',
 }
 
-client_script 'client/main.lua'
+client_scripts {
+    'client/main.lua',
+    'client/tdm.lua',
+}
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/state.lua',
     'server/matchmaking.lua',
+    'server/combat_score.lua',
     'server/main.lua',
+    'server/tdm.lua',
 }
 
-dependencies { 'qbx_core', 'ox_lib', 'oxmysql' }
+dependencies { 'baseevents', 'qbx_core', 'ox_lib', 'ox_inventory', 'oxmysql' }

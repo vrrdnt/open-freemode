@@ -42,6 +42,11 @@ assert(second.token ~= started.token)
 assert(manager:cancel(8).kind == 'pizza')
 assert(manager:cancel(8) == nil)
 
+local reserved = assert(manager:reserve(10, 'tdm'))
+assert(reserved.kind == 'tdm' and reserved.totalStops == 0)
+assert(select(2, manager:reserve(10, 'race')) == 'already_active')
+assert(manager:cancel(10).kind == 'tdm')
+
 local race = assert(manager:start(9, {
     kind = 'race',
     payout = 500,

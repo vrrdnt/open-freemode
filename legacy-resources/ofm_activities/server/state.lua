@@ -4,15 +4,28 @@ local Manager = {}
 Manager.__index = Manager
 
 local function snapshot(session)
-    local stop = session.stops[session.nextIndex]
+    local stops = session.stops or {}
+    local stop = stops[session.nextIndex]
     return {
         kind = session.kind,
         token = session.token,
         nextIndex = session.nextIndex,
-        totalStops = #session.stops,
+        totalStops = #stops,
         stop = stop and { x = stop.x, y = stop.y, z = stop.z } or nil,
         vehicleNetId = session.vehicleNetId,
     }
+end
+
+function Manager:reserve(source, kind)
+    if self.sessions[source] then return nil, 'already_active' end
+    local session = {
+        kind = assert(kind),
+        token = self.token(source, kind),
+        stops = {},
+        nextIndex = 1,
+    }
+    self.sessions[source] = session
+    return snapshot(session)
 end
 
 function ActivityState.new(options)

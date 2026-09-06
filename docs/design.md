@@ -28,9 +28,9 @@ Pizza delivery is the first end-to-end activity. The current slice provides five
 
 Airport Dash provides the first curated point-to-point route. Solo mode locks the current vehicle for a three-second start and records a time-trial leaderboard. Public mode queues 2–8 nearby drivers, locks the lobby after ten seconds, places cars into queue-ordered grid slots in an isolated match bucket, synchronizes a five-second start, ghosts racers against each other for the first three seconds, records server-side finish order and pays $1,000/$750/$600 for the first three places and $500 for later finishers. Cancelling during staging restores the vehicle's original position. Both modes validate the same driver and vehicle at every ordered checkpoint and restore routing on finish, cancellation, death or disconnect. Class-specific vehicles and player route creation wait until this first multiplayer flow is client-validated.
 
-### 4. Team deathmatch
+### 4. Team deathmatch — first playable slice implemented, client validation pending
 
-Add team assignment, instanced arenas, approved loadouts, round state, score limits, death/respawn rules and post-match restoration. Freemode inventory must not leak into match loadouts or vice versa.
+Terminal Clash queues 2–10 players outside Maze Bank Arena, assigns balanced red and blue teams, and moves them to an isolated Terminal arena. The first team to 15 validated enemy kills wins. Direct match weapons and armor are temporary, inventory access is locked during play, deaths respawn after four seconds, and persistent inventory is never modified. Results and payouts are recorded once per participant; winners receive $1,200 and losers $600. Suicides and friendly kills do not score, duplicate death events are ignored, and a team becoming empty cancels the match without rewards. Finish, forfeit, disconnect, character unload and resource shutdown restore routing and freemode state.
 
 ### 5. Cops and robbers
 

@@ -62,4 +62,47 @@ return {
             { x = 215.10, y = -810.10, z = 30.73 },
         },
     },
+    tdm = {
+        id = 'terminal_clash',
+        name = 'Terminal Clash',
+        queue = { x = -262.40, y = -2027.60, z = 30.15 },
+        queueRadius = 5.0,
+        minimumPlayers = 2,
+        maximumPlayers = 10,
+        lobbySeconds = 10,
+        countdownSeconds = 5,
+        respawnSeconds = 4,
+        scoreLimit = 15,
+        winnerPayout = 1200,
+        loserPayout = 600,
+        bucketBase = 8000,
+        maximumKillDistance = 300.0,
+        loadout = {
+            { weapon = 'WEAPON_CARBINERIFLE', ammo = 180 },
+            { weapon = 'WEAPON_PISTOL', ammo = 72 },
+        },
+        armor = 100,
+        teams = {
+            red = {
+                label = 'Red',
+                spawns = {
+                    { x = 1209.20, y = -3114.40, z = 5.54, w = 90.0 },
+                    { x = 1209.20, y = -3108.40, z = 5.54, w = 90.0 },
+                    { x = 1209.20, y = -3102.40, z = 5.54, w = 90.0 },
+                    { x = 1209.20, y = -3096.40, z = 5.54, w = 90.0 },
+                    { x = 1209.20, y = -3090.40, z = 5.54, w = 90.0 },
+                },
+            },
+            blue = {
+                label = 'Blue',
+                spawns = {
+                    { x = 1278.80, y = -3114.40, z = 5.54, w = 270.0 },
+                    { x = 1278.80, y = -3108.40, z = 5.54, w = 270.0 },
+                    { x = 1278.80, y = -3102.40, z = 5.54, w = 270.0 },
+                    { x = 1278.80, y = -3096.40, z = 5.54, w = 270.0 },
+                    { x = 1278.80, y = -3090.40, z = 5.54, w = 270.0 },
+                },
+            },
+        },
+    },
 }

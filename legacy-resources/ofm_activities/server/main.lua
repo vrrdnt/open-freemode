@@ -11,8 +11,9 @@ local manager = ActivityState.new({
         return ('%s:%d:%d:%06d'):format(kind, source, os.time(), math.random(0, 999999))
     end,
 })
+OFMActivityManager = manager
 local raceRuns = {}
-local raceQueue = RaceQueue.new({
+local raceQueue = ActivityQueue.new({
     minimum = config.race.publicMinimumPlayers,
     maximum = config.race.publicMaximumPlayers,
 })
@@ -80,6 +81,7 @@ local function matchSources(match)
 end
 
 local function cancelActivity(source)
+    if OFMCancelTdm and OFMCancelTdm(source) then return end
     local wasQueued = raceQueue:remove(source) ~= nil
     local run = raceRuns[source]
     restoreRace(source, run)

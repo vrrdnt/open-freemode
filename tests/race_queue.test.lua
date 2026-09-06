@@ -1,7 +1,7 @@
 local queuePath = assert(arg[1], 'queue module path is required')
 dofile(queuePath)
 
-local queue = RaceQueue.new({ minimum = 2, maximum = 3 })
+local queue = ActivityQueue.new({ minimum = 2, maximum = 3 })
 assert(queue:size() == 0)
 assert(queue:join(11, { vehicle = 101 }) == 1)
 assert(select(2, queue:join(11, { vehicle = 999 })) == 'already_queued')

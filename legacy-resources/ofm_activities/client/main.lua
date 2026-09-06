@@ -420,7 +420,9 @@ end)
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
     local response = lib.callback.await('ofm_activities:status', false)
     if response and response.session then
-        if response.session.kind == 'race' and response.session.phase == 'queued' then
+        if response.session.kind == 'tdm' then
+            return
+        elseif response.session.kind == 'race' and response.session.phase == 'queued' then
             queued = true
             queuedToken = response.session.token
         else

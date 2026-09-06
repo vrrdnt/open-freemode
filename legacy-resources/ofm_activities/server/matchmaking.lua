@@ -1,9 +1,9 @@
-RaceQueue = {}
+ActivityQueue = {}
 
 local Queue = {}
 Queue.__index = Queue
 
-function RaceQueue.new(options)
+function ActivityQueue.new(options)
     return setmetatable({
         entries = {},
         order = {},
@@ -11,6 +11,8 @@ function RaceQueue.new(options)
         maximum = assert(options.maximum),
     }, Queue)
 end
+
+RaceQueue = ActivityQueue
 
 function Queue:join(source, data)
     if self.entries[source] then return nil, 'already_queued' end
