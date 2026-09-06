@@ -51,9 +51,10 @@ lua5.4 tests/race_queue.test.lua legacy-resources/ofm_activities/server/matchmak
 lua5.4 tests/combat_score.test.lua legacy-resources/ofm_activities/server/combat_score.lua
 lua5.4 tests/pursuit_state.test.lua legacy-resources/ofm_activities/server/pursuit_state.lua
 lua5.4 tests/vehicle_rules.test.lua legacy-resources/ofm_vehicles/server/rules.lua
+node --check legacy-resources/ofm_hub/web/app.js
 ```
 
-It covers activity reservation, pizza and race starts, forged tokens, wrong checkpoint order, proximity limits, timing limits, completion replay, cancellation, queue capacity, queue removal, lobby locking, TDM deaths and score-limit victory, pursuit checkpoints, driver rules, eliminations, police respawns and timeouts, plus owned-vehicle catalog, affordability and upgrade decisions. Native integration verifies every activity and purchase schema and required resource startup.
+It covers activity reservation, pizza and race starts, forged tokens, wrong checkpoint order, proximity limits, timing limits, completion replay, cancellation, queue capacity, queue removal, lobby locking, TDM deaths and score-limit victory, pursuit checkpoints, driver rules, eliminations, police respawns and timeouts, plus owned-vehicle catalog, affordability and upgrade decisions. The browser script receives a syntax check. Native integration verifies every activity, purchase and onboarding schema and required resource startup.
 
 Regenerate the Pelican egg and prove the checked-in artifact is current:
 

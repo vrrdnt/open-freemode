@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open Freemode Handbook</title>
+  <link rel="stylesheet" href="styles.css?v=1">
+</head>
+<body>
+  <main id="shell" class="shell" aria-hidden="true">
+    <header class="masthead">
+      <div class="brand" aria-label="Open Freemode">
+        <span class="brand-mark">OF</span>
+        <span><strong>OPEN FREEMODE</strong><small>LOS SANTOS ACTIVITY NETWORK</small></span>
+      </div>
+      <label class="search">
+        <span aria-hidden="true">⌕</span>
+        <input id="search" type="search" autocomplete="off" placeholder="Search vehicles, money, controls, activities…">
+      </label>
+      <nav class="tabs" aria-label="Main pages">
+        <button data-page="handbook">Handbook</button>
+        <button data-page="activities">Activities</button>
+      </nav>
+      <button id="close" class="close" aria-label="Close handbook">×</button>
+    </header>
+
+    <div class="body">
+      <aside id="sidebar" class="sidebar" aria-label="Handbook contents"></aside>
+      <section id="content" class="content" tabindex="-1"></section>
+    </div>
+
+    <footer>
+      <span><kbd>F7</kbd> Handbook</span>
+      <span><kbd>M</kbd> Freemode menu</span>
+      <span><kbd>F2</kbd> Inventory</span>
+      <span class="grow"></span>
+      <span><kbd>ESC</kbd> Close</span>
+    </footer>
+  </main>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

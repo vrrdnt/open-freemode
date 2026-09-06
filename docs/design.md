@@ -38,4 +38,4 @@ City Escape queues 2–6 players on foot at Mission Row. The first queued player
 
 ## Interface direction
 
-Use game-native scaleform and menus where they fit moment-to-moment play, and focused NUI surfaces for rich content such as onboarding, activity browsing, rules and a searchable handbook. Keep the pause map useful by adding only stable destinations; move dense or temporary activity listings into the activity browser.
+The first hub slice uses a focused NUI for three-step new-character orientation, searchable rules and help, and activity cards that route players to the existing world entry markers. Completion is stored per Qbox character only after an explicit finish or first-job action, and onboarding waits for a saved appearance so it does not compete with character creation. F7 and `/guide` reopen the handbook; `/activities` opens the activity browser directly. The browser sets only validated, local GPS destinations, so it cannot bypass server queue rules. Stable world destinations keep their map blips while dense explanations stay in the hub.

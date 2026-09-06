@@ -161,6 +161,7 @@ def configure(data, env):
         'ensure vMenu',
         'ensure ofm_activities',
         'ensure ofm_vehicles',
+        'ensure ofm_hub',
         'ensure ofm_session',
     ]
     private_write(data / 'config/database.json', json.dumps(options, ensure_ascii=True) + '\n')

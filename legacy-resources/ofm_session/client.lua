@@ -24,9 +24,3 @@ CreateThread(function()
         end
     end
 end)
-
-RegisterCommand('guide', function()
-    lib.alertDialog({header = 'Welcome to Open Freemode', content =
-        'Press **M** for temporary freemode vehicles and weapons. Use **F2** for inventory. Buy persistent cars at Premium Deluxe Motorsport, store them at Legion Square Garage, and upgrade them at Burton Customs.\n\nPizza delivery starts at Pizza This... in Vinewood. Airport Dash at LSIA offers solo and public racing. Terminal Clash TDM starts outside Maze Bank Arena. City Escape cops and robbers starts at Mission Row. Use the matching **/pizza_cancel**, **/race_cancel**, **/tdm_cancel**, or **/pursuit_cancel** command to abandon an activity. vMenu and activity cars cannot be stored or modified as owned vehicles.',
-        centered = true})
-end, false)
