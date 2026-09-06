@@ -91,7 +91,7 @@ Join with normal FiveM Legacy, create a character, reconnect, and confirm the ch
 
 For racing, spawn or obtain a vehicle, drive to the **Airport Dash** blip at LSIA and enter the marker as the driver. Choose **Solo time trial**, confirm the vehicle remains frozen through the three-second countdown, drive through all nine checkpoints in order and verify the finish notification shows elapsed time, personal best, leaderboard rank and a $500 bank deposit. `/race_cancel` must end the run without deleting the player's vehicle or paying a result.
 
-With at least two testers, choose **Public race queue**. Keep every queued driver and their original vehicle inside the LSIA staging marker until the lobby locks. Confirm all entrants receive the synchronized five-second countdown, see only racers in their isolated match, receive finish positions and return to normal freemode with their vehicles afterward. First through third pay $1,000, $750 and $600; later finishers receive $500.
+With at least two testers, choose **Public race queue**. Keep every queued driver and their original vehicle inside the LSIA staging marker until the lobby locks. Confirm cars move into separate queue-ordered grid slots, all entrants receive the synchronized five-second countdown, cars do not collide during the countdown or first three seconds, only racers appear in the isolated match, and everyone receives finish positions and returns to normal freemode with their vehicles afterward. Cancelling during the countdown must restore the car to its original staging position. First through third pay $1,000, $750 and $600; later finishers receive $500.
 
 ## Updating
 

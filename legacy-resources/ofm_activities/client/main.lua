@@ -5,6 +5,8 @@ local promptOwner
 local submitting = false
 local queued = false
 local queuedToken
+local raceGhostNetIds = {}
+local raceGhostUntil
 
 local function notify(title, description, kind)
     lib.notify({ title = title, description = description, type = kind or 'inform' })
@@ -32,6 +34,8 @@ local function clearActivity()
     active = nil
     queued = false
     queuedToken = nil
+    raceGhostNetIds = {}
+    raceGhostUntil = nil
     submitting = false
 end
 
@@ -235,10 +239,18 @@ RegisterNetEvent('ofm_activities:race:queueStatus', function(size, message)
     notify('Airport Dash', message or ('%d/%d drivers waiting.'):format(size, config.race.publicMaximumPlayers))
 end)
 
-RegisterNetEvent('ofm_activities:race:countdown', function(session, seconds)
+RegisterNetEvent('ofm_activities:race:countdown', function(session, seconds, slot, vehicleNetIds)
     if not queued or queuedToken ~= session.token then return end
     queued = false
     queuedToken = nil
+    raceGhostNetIds = vehicleNetIds or {}
+    raceGhostUntil = nil
+    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+    if vehicle ~= 0 and slot then
+        SetEntityCoordsNoOffset(vehicle, slot.x, slot.y, slot.z, false, false, false)
+        SetEntityHeading(vehicle, slot.w)
+        FreezeEntityPosition(vehicle, true)
+    end
     updateRoute(session)
     active.started = false
     local token = active.token
@@ -252,10 +264,13 @@ RegisterNetEvent('ofm_activities:race:countdown', function(session, seconds)
     end)
 end)
 
-RegisterNetEvent('ofm_activities:race:go', function(token, totalPlayers)
+RegisterNetEvent('ofm_activities:race:go', function(token, totalPlayers, ghostSeconds)
     if not active or active.token ~= token then return end
     hidePrompt('countdown')
     active.started = true
+    raceGhostUntil = GetGameTimer() + ((ghostSeconds or 0) * 1000)
+    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+    if vehicle ~= 0 then FreezeEntityPosition(vehicle, false) end
     notify('Airport Dash', ('GO! %d drivers are racing.'):format(totalPlayers), 'success')
 end)
 
@@ -263,6 +278,31 @@ RegisterNetEvent('ofm_activities:race:cancelled', function(message)
     if not active and not queued then return end
     clearActivity()
     notify('Airport Dash', message, 'error')
+end)
+
+CreateThread(function()
+    while true do
+        local ghosting = active and active.kind == 'race' and #raceGhostNetIds > 0
+            and (not active.started or raceGhostUntil and GetGameTimer() < raceGhostUntil)
+        if ghosting then
+            local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+            if vehicle ~= 0 then
+                for _, netId in ipairs(raceGhostNetIds) do
+                    local other = NetToVeh(netId)
+                    if other ~= 0 and other ~= vehicle and DoesEntityExist(other) then
+                        SetEntityNoCollisionEntity(vehicle, other, true)
+                    end
+                end
+            end
+            Wait(0)
+        else
+            if raceGhostUntil and GetGameTimer() >= raceGhostUntil then
+                raceGhostNetIds = {}
+                raceGhostUntil = nil
+            end
+            Wait(250)
+        end
+    end
 end)
 
 CreateThread(function()

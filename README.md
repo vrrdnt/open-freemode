@@ -19,7 +19,7 @@ The foundation works today:
 - Illenium Appearance, ox_inventory, pma-voice and vMenu;
 - airport spawn, freemode death recovery and `/guide`;
 - server-authoritative pizza delivery with randomized stops, a temporary scooter and one-time bank payout;
-- solo and 2–8 player Airport Dash racing with synchronized starts, isolated matches, finish-order payouts and persistent rankings;
+- solo and 2–8 player Airport Dash racing with an ordered starting grid, synchronized starts, brief launch ghosting, isolated matches, finish-order payouts and persistent rankings;
 - tester admission through the `ofm.join` ACE permission;
 - immutable resource bundles suitable for Pelican and GHCR updates.
 

@@ -1,5 +1,8 @@
 local config = require 'config'
 
+assert(#config.race.publicGrid >= config.race.publicMaximumPlayers,
+    'Airport Dash needs one grid slot per public racer')
+
 math.randomseed(os.time())
 
 local manager = ActivityState.new({
@@ -52,6 +55,11 @@ local function restoreRace(source, run)
         if run.previousVehicleBucket then
             exports.qbx_core:SetEntityBucket(run.vehicle, run.previousVehicleBucket)
         end
+        if run.restoreVehicle then
+            SetEntityCoords(run.vehicle, run.restoreVehicle.x, run.restoreVehicle.y, run.restoreVehicle.z,
+                false, false, false, false)
+            SetEntityHeading(run.vehicle, run.restoreVehicle.w)
+        end
     end
     if run.previousPlayerBucket and GetPlayerName(source) then
         exports.qbx_core:SetPlayerBucket(source, run.previousPlayerBucket)
@@ -83,9 +91,9 @@ end
 
 local function raceVehicle(source, expected, radius)
     local coords, ped = playerCoords(source)
-    if not coords or distance(coords, config.race.start) > radius then return nil end
+    if not coords or (radius and distance(coords, config.race.start) > radius) then return nil end
     local vehicle = GetVehiclePedIsIn(ped, false)
-    if vehicle == 0 or expected and vehicle ~= expected or GetPedInVehicleSeat(vehicle, -1) ~= ped then return nil end
+    if vehicle == 0 or (expected and vehicle ~= expected) or GetPedInVehicleSeat(vehicle, -1) ~= ped then return nil end
     return vehicle
 end
 
@@ -209,34 +217,40 @@ local function startPublicCountdown(entries)
     local bucket = config.race.publicBucketBase + matchSequence
     local match = { id = matchId, bucket = bucket, players = {}, finished = 0 }
     matches[matchId] = match
+    SetRoutingBucketPopulationEnabled(bucket, false)
 
-    local valid = 0
-    for _, entry in ipairs(entries) do
+    local entrants = {}
+    for index, entry in ipairs(entries) do
         local source = entry.source
         local run = raceRuns[source]
         local vehicle = run and raceVehicle(source, run.vehicle, config.race.publicStagingRadius)
-        if run and run.phase == 'queued' and vehicle then
-            valid = valid + 1
+        local slot = config.race.publicGrid[index]
+        if run and run.phase == 'queued' and vehicle and slot then
+            local original = GetEntityCoords(vehicle)
             run.phase = 'countdown'
             run.matchId = matchId
             run.previousPlayerBucket = GetPlayerRoutingBucket(source)
             run.previousVehicleBucket = GetEntityRoutingBucket(vehicle)
+            run.restoreVehicle = { x = original.x, y = original.y, z = original.z, w = GetEntityHeading(vehicle) }
             match.players[source] = true
             FreezeEntityPosition(vehicle, true)
             exports.qbx_core:SetPlayerBucket(source, bucket)
             exports.qbx_core:SetEntityBucket(vehicle, bucket)
-            local session = manager:status(source)
-            session.name = config.race.name
-            session.mode = 'public'
-            session.phase = 'countdown'
-            TriggerClientEvent('ofm_activities:race:countdown', source, session, config.race.publicCountdownSeconds)
+            SetEntityCoords(vehicle, slot.x, slot.y, slot.z, false, false, false, false)
+            SetEntityHeading(vehicle, slot.w)
+            entrants[#entrants + 1] = {
+                source = source,
+                run = run,
+                slot = slot,
+                vehicleNetId = NetworkGetNetworkIdFromEntity(vehicle),
+            }
         else
             cancelActivity(source)
             TriggerClientEvent('ofm_activities:race:cancelled', source, 'You left the staging area or vehicle.')
         end
     end
 
-    if valid < config.race.publicMinimumPlayers then
+    if #entrants < config.race.publicMinimumPlayers then
         for _, source in ipairs(matchSources(match)) do
             cancelActivity(source)
             TriggerClientEvent('ofm_activities:race:cancelled', source, 'Not enough drivers remained for the public race.')
@@ -245,14 +259,25 @@ local function startPublicCountdown(entries)
         return
     end
 
-    match.totalPlayers = valid
+    match.totalPlayers = #entrants
+    local vehicleNetIds = {}
+    for index, entrant in ipairs(entrants) do vehicleNetIds[index] = entrant.vehicleNetId end
+    for _, entrant in ipairs(entrants) do
+        local session = manager:status(entrant.source)
+        session.name = config.race.name
+        session.mode = 'public'
+        session.phase = 'countdown'
+        TriggerClientEvent('ofm_activities:race:countdown', entrant.source, session,
+            config.race.publicCountdownSeconds, entrant.slot, vehicleNetIds)
+    end
+
     SetTimeout(config.race.publicCountdownSeconds * 1000, function()
         local current = matches[matchId]
         if not current then return end
         local ready = {}
         for _, source in ipairs(matchSources(current)) do
             local run = raceRuns[source]
-            if run and run.matchId == matchId and raceVehicle(source, run.vehicle, config.race.publicStagingRadius) then
+            if run and run.matchId == matchId and raceVehicle(source, run.vehicle) then
                 ready[#ready + 1] = source
             else
                 cancelActivity(source)
@@ -275,8 +300,10 @@ local function startPublicCountdown(entries)
             local run = raceRuns[source]
             run.phase = 'running'
             run.startedAt = startedAt
+            run.restoreVehicle = nil
             FreezeEntityPosition(run.vehicle, false)
-            TriggerClientEvent('ofm_activities:race:go', source, run.token, current.totalPlayers)
+            TriggerClientEvent('ofm_activities:race:go', source, run.token, current.totalPlayers,
+                config.race.publicGhostSeconds)
         end
     end)
 end
