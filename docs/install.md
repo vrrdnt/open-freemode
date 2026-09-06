@@ -89,4 +89,4 @@ Join with normal FiveM Legacy, create a character, reconnect, and confirm the ch
 
 ## Updating
 
-Follow [the registry update procedure](registry.md). Image replacement preserves the server volume and database. The launcher refuses to overwrite a resource directory that differs from the selected image, which prevents silent mixing of release files and manual edits.
+Follow [the registry update procedure](registry.md). Image replacement preserves the server volume and database. When the verified image bundle changes, the launcher installs it atomically and moves the previous resources into the persistent `recovery/` directory under a content-derived name. Remove that preserved copy only after the updated server has passed its gameplay checks.

@@ -46,6 +46,11 @@ def resource_snapshot(root):
     return result
 
 
+def snapshot_digest(snapshot):
+    encoded = json.dumps(snapshot, sort_keys=True, separators=(',', ':')).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def seed(data, app):
     for name in ['config', 'server-data', 'txData', 'recovery']:
         target = data / name
@@ -57,8 +62,24 @@ def seed(data, app):
     if resources.is_symlink():
         raise ValueError('Resource symlinks are not supported; preserve state and reinstall resources')
     if resources.exists():
-        if not resources.is_dir() or resource_snapshot(resources) != resource_snapshot(expected):
-            raise ValueError('Resources differ from this image; stop, back up and move the old resources directory before reinstalling')
+        if not resources.is_dir():
+            raise ValueError('Managed resources path is not a directory; preserve state and repair it before starting')
+        current = resource_snapshot(resources)
+        wanted = resource_snapshot(expected)
+        if current != wanted:
+            backup = data / 'recovery' / ('resources-' + snapshot_digest(current)[:16])
+            staged = resources.with_name('.resources-' + snapshot_digest(wanted)[:16] + '.staged')
+            if backup.exists() or staged.exists():
+                raise ValueError('A preserved or staged resource bundle blocks this update; inspect recovery and retry')
+            shutil.copytree(expected, staged)
+            resources.rename(backup)
+            try:
+                staged.rename(resources)
+            except BaseException:
+                if not resources.exists():
+                    backup.rename(resources)
+                raise
+            print(f'Installed updated resource bundle; previous files preserved as recovery/{backup.name}.', flush=True)
     else:
         shutil.copytree(expected, resources)
     operator = data / 'config/operator.cfg'

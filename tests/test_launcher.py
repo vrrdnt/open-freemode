@@ -90,12 +90,15 @@ class LauncherTests(unittest.TestCase):
                 self.assertNotIn(value, str(error.exception))
                 self.assertEqual((self.data / 'server-data/server.cfg').read_bytes(), original)
 
-    def test_managed_path_conflict_is_preserved(self):
+    def test_resource_upgrade_preserves_previous_bundle(self):
         target = self.data / 'server-data/resources'
         (target / 'operator.lua').write_text('preserve')
-        with self.assertRaises(ValueError):
-            launcher.seed(self.data, self.app)
-        self.assertEqual((target / 'operator.lua').read_text(), 'preserve')
+        (self.app / 'resources/release.lua').write_text('new')
+        launcher.seed(self.data, self.app)
+        self.assertEqual((target / 'release.lua').read_text(), 'new')
+        backups = list((self.data / 'recovery').glob('resources-*'))
+        self.assertEqual(len(backups), 1)
+        self.assertEqual((backups[0] / 'operator.lua').read_text(), 'preserve')
 
     def test_private_config_symlink_is_rejected(self):
         other = self.root / 'other'

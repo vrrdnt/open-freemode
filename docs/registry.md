@@ -23,7 +23,7 @@ Import the checked-in egg. A public GHCR package needs no node-side credentials.
 
 3. Update the egg/image selection in Pelican during a maintenance window.
 4. Back up the database and persistent server volume as one matched set.
-5. Pull/reinstall the server image, then start it and watch for the readiness line.
+5. Pull/reinstall the server image, then start it and watch for the readiness line. The launcher preserves the previous resource bundle under `recovery/` while installing the selected image's bundle.
 6. Run the client smoke test from [install.md](install.md).
 
 The floating `legacy-dev` tag is convenient for a test server. Pin a digest for any lasting public deployment so a restart cannot silently select a different release.
