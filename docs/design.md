@@ -26,7 +26,7 @@ Pizza delivery is the first end-to-end activity. The current slice provides five
 
 ### 3. Racing — first playable slice implemented, client validation pending
 
-Airport Dash provides the first curated point-to-point route. It uses the vehicle the player is already driving, locks it for a three-second start, validates the same driver and vehicle at every ordered checkpoint, records elapsed time and personal/global standing, pays once and supports cancellation or death cleanup. Multiplayer lobby/queue flow, synchronized starts, finish order and temporary class-specific vehicles are the next racing step. Player route creation waits until multiplayer result validation is stable.
+Airport Dash provides the first curated point-to-point route. Solo mode locks the current vehicle for a three-second start and records a time-trial leaderboard. Public mode queues 2–8 nearby drivers, locks the lobby after ten seconds, moves entrants into an isolated match bucket, synchronizes a five-second start, records server-side finish order and pays $1,000/$750/$600 for the first three places and $500 for later finishers. Both modes validate the same driver and vehicle at every ordered checkpoint and restore the vehicle and player on finish, cancellation, death or disconnect. Class-specific vehicles and player route creation wait until this first multiplayer flow is client-validated.
 
 ### 4. Team deathmatch
 

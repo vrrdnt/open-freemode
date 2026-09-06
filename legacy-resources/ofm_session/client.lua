@@ -27,6 +27,6 @@ end)
 
 RegisterCommand('guide', function()
     lib.alertDialog({header = 'Welcome to Open Freemode', content =
-        'Press **M** for freemode vehicles and weapons. Use **F2** for inventory. Character appearance is saved by Qbox and Illenium Appearance.\n\nPizza delivery starts at Pizza This... in Vinewood. Airport Dash starts at LSIA in any vehicle you are driving. Use **/pizza_cancel** or **/race_cancel** to abandon an activity. TDM and cops-and-robbers are in development. Temporary spawned cars are not owned vehicles.',
+        'Press **M** for freemode vehicles and weapons. Use **F2** for inventory. Character appearance is saved by Qbox and Illenium Appearance.\n\nPizza delivery starts at Pizza This... in Vinewood. Airport Dash at LSIA offers a solo time trial or a public queue for 2–8 drivers. Use **/pizza_cancel** or **/race_cancel** to abandon an activity. TDM and cops-and-robbers are in development. Temporary spawned cars are not owned vehicles.',
         centered = true})
 end, false)

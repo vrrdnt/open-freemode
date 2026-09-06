@@ -1,0 +1,23 @@
+local queuePath = assert(arg[1], 'queue module path is required')
+dofile(queuePath)
+
+local queue = RaceQueue.new({ minimum = 2, maximum = 3 })
+assert(queue:size() == 0)
+assert(queue:join(11, { vehicle = 101 }) == 1)
+assert(select(2, queue:join(11, { vehicle = 999 })) == 'already_queued')
+assert(select(2, queue:lock()) == 'not_ready')
+assert(queue:join(12, { vehicle = 102 }) == 2)
+assert(queue:join(13, { vehicle = 103 }) == 3)
+assert(select(2, queue:join(14, { vehicle = 104 })) == 'queue_full')
+local sources = queue:sources()
+assert(#sources == 3 and sources[1] == 11 and sources[3] == 13)
+
+local removed = assert(queue:remove(12))
+assert(removed.vehicle == 102 and queue:size() == 2)
+assert(queue:remove(12) == nil)
+local entries = assert(queue:lock())
+assert(#entries == 2 and entries[1].source == 11 and entries[2].source == 13)
+assert(queue:size() == 0)
+assert(queue:join(14, { vehicle = 104 }) == 1)
+
+print('Race queue lifecycle passed.')

@@ -12,6 +12,7 @@ client_script 'client/main.lua'
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/state.lua',
+    'server/matchmaking.lua',
     'server/main.lua',
 }
 

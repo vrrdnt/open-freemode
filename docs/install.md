@@ -89,7 +89,9 @@ Wait for:
 
 Join with normal FiveM Legacy, create a character, reconnect, and confirm the character persists. Check `M` for the limited freemode menu, `F2` for inventory, `/guide` for the current feature summary, and verify that death returns the player to LSIA after five seconds. Then visit the **Pizza Delivery** blip in Vinewood, complete all five marked doors, confirm the $750 bank deposit, and verify the scooter disappears. `/pizza_cancel` must remove an abandoned route and scooter without paying it.
 
-For racing, spawn or obtain a vehicle, drive to the **Airport Dash** blip at LSIA and enter the marker as the driver. Start the race, confirm the vehicle remains frozen through the three-second countdown, drive through all nine checkpoints in order and verify the finish notification shows elapsed time, personal best, leaderboard rank and a $500 bank deposit. `/race_cancel` must end the run without deleting the player's vehicle or paying a result.
+For racing, spawn or obtain a vehicle, drive to the **Airport Dash** blip at LSIA and enter the marker as the driver. Choose **Solo time trial**, confirm the vehicle remains frozen through the three-second countdown, drive through all nine checkpoints in order and verify the finish notification shows elapsed time, personal best, leaderboard rank and a $500 bank deposit. `/race_cancel` must end the run without deleting the player's vehicle or paying a result.
+
+With at least two testers, choose **Public race queue**. Keep every queued driver and their original vehicle inside the LSIA staging marker until the lobby locks. Confirm all entrants receive the synchronized five-second countdown, see only racers in their isolated match, receive finish positions and return to normal freemode with their vehicles afterward. First through third pay $1,000, $750 and $600; later finishers receive $500.
 
 ## Updating
 

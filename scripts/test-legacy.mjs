@@ -42,9 +42,12 @@ try {
   sql("INSERT INTO ofm_race_results (result_id,citizenid,race_id,elapsed_ms,payout) VALUES ('race-result','activity-fixture','airport_dash',65432,500)");
   sql("INSERT IGNORE INTO ofm_race_results (result_id,citizenid,race_id,elapsed_ms,payout) VALUES ('race-result','activity-fixture','airport_dash',1,999)");
   assert.equal(sql("SELECT CONCAT(COUNT(*),':',MIN(elapsed_ms),':',MAX(payout)) FROM ofm_race_results WHERE result_id='race-result'"), '1:65432:500', 'Race result was not idempotent');
+  sql("INSERT INTO ofm_race_results (result_id,citizenid,race_id,elapsed_ms,payout) VALUES ('public-race-result','activity-fixture','airport_dash_public',70123,1000)");
+  assert.equal(sql("SELECT CONCAT(race_id,':',elapsed_ms,':',payout) FROM ofm_race_results WHERE result_id='public-race-result'"), 'airport_dash_public:70123:1000', 'Public race result was not preserved');
   sql("DELETE FROM players WHERE citizenid='activity-fixture'");
   assert.equal(sql("SELECT COUNT(*) FROM ofm_activity_results WHERE result_id='fixture-result'"), '0', 'Activity result did not follow character deletion');
   assert.equal(sql("SELECT COUNT(*) FROM ofm_race_results WHERE result_id='race-result'"), '0', 'Race result did not follow character deletion');
+  assert.equal(sql("SELECT COUNT(*) FROM ofm_race_results WHERE result_id='public-race-result'"), '0', 'Public race result did not follow character deletion');
   const game = docker('run', '-dit', ...args, '--publish', '127.0.0.1::30120/tcp', image);
   containers.push(game);
   let logs = '';
