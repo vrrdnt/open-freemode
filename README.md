@@ -17,6 +17,7 @@ The foundation works today:
 - fresh, repeatable MariaDB schema installation;
 - Qbox player persistence and vehicle ownership data model;
 - Illenium Appearance, ox_inventory, pma-voice and vMenu;
+- six focused supply vendors with persistent bank-funded healing, armor and parachute purchases;
 - airport spawn, freemode death recovery and `/guide`;
 - server-authoritative pizza delivery with randomized stops, a temporary scooter and one-time bank payout;
 - solo and 2–8 player Airport Dash racing with an ordered starting grid, synchronized starts, brief launch ghosting, isolated matches, finish-order payouts and persistent rankings;
@@ -28,7 +29,7 @@ The foundation works today:
 - tester admission through the `ofm.join` ACE permission;
 - immutable resource bundles suitable for Pelican and GHCR updates.
 
-Pizza delivery, both Airport Dash modes, Terminal Clash TDM, City Escape, owned vehicles, apartment garages and the player hub are ready for real-client gameplay passes.
+Pizza delivery, both Airport Dash modes, Terminal Clash TDM, City Escape, supply vendors, owned vehicles, apartment garages and the player hub are ready for real-client gameplay passes.
 
 Start with [the fresh Pelican installation guide](docs/install.md). No backup import, copied server directory or node-side image build is required.
 

@@ -22,6 +22,8 @@ Premium Deluxe Motorsport sells three server-priced starter cars from bank funds
 
 Alta Street and Del Perro provide the first selected property slice. Each is a permanent, character-owned garage entitlement purchased from bank funds through an idempotent server transaction. Ownership controls access to that garage, while the vehicle service remains the sole authority for storage and retrieval. This slice deliberately represents an activated apartment garage and does not include a housing interior; map placement, driveway clearance and interaction feel still require real-client validation.
 
+Four convenience stores and two AmmuNation counters form the focused vendor network. They sell persistent bandages, body armor and parachutes from bank funds through server-validated proximity and inventory-capacity checks. Upstream ox_inventory sample shops are disabled so the map remains readable. vMenu remains the source of free temporary freemode weapons, so AmmuNation does not charge for duplicate weapon access.
+
 ### 2. Pizza delivery vertical slice — implemented, client validation pending
 
 Pizza delivery is the first end-to-end activity. The current slice provides five randomized stops, a temporary scooter, server-side order/proximity/timing checks, an idempotent result ledger, bank payment and cleanup on cancellation, death, disconnect or resource shutdown. Its map placement, door coordinates, animation and driving feel still need a real-client pass.

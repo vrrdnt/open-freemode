@@ -33,6 +33,10 @@ const handbook = [
     'Alta Street and Del Perro sell persistent garage access from your bank account. Each purchase belongs to the active character and unlocks storage and retrieval at that location.',
     'These first properties provide an activated apartment garage without a housing interior. Legion Square remains available without a property purchase.'
   ] },
+  { group: 'World', id: 'vendors', title: 'Supply vendors', kicker: 'Vendors', summary: 'Persistent supplies without covering the map in shop icons.', body: [
+    'Four convenience stores and two AmmuNation counters sell bandages, body armor and parachutes from your bank account. Purchased items enter your persistent F2 inventory.',
+    'vMenu already supplies temporary freemode weapons, so AmmuNation sells useful supplies instead of charging you for the same weapon access. Vendor purchases are unavailable during activities.'
+  ] },
   { group: 'Activities', id: 'activity-lifecycle', title: 'How activities work', kicker: 'Fair play', summary: 'Queue, prepare, play, resolve, restore.', body: [
     'Every structured mode validates entry in the world, saves your freemode state, and moves players into an isolated session where required. The server owns checkpoints, score, timing and payouts.',
     'Finishing, cancelling, dying, disconnecting, unloading a character or restarting a resource all follow cleanup paths designed to remove temporary equipment and return you to freemode.'
@@ -128,7 +132,7 @@ function renderActivities() {
 const slides = [
   ['Welcome to Open Freemode', 'A shared Los Santos built around fast access to racing, combat, pursuits and delivery work.', 'Your character, appearance, money, inventory and purchased cars persist. The free cars and weapons in vMenu are there for casual freemode play.'],
   ['One world, four activities', 'Use the activity browser to set a GPS route. Entry still happens at a real destination in the world.', 'The server validates teams, vehicles, checkpoints, scores and rewards. When a mode ends, its temporary rules and equipment are removed before you return.'],
-  ['Build your garage', 'Activity payouts fund persistent cars, upgrades and private garage access.', 'Buy a starter vehicle at Premium Deluxe Motorsport, retrieve it at Legion Square, and customize it at Burton Customs. Alta Street and Del Perro offer purchasable apartment garages. vMenu cars stay temporary.'],
+  ['Build your world', 'Activity payouts fund persistent supplies, cars, upgrades and private garage access.', 'Buy supplies at focused world vendors and a starter vehicle at Premium Deluxe Motorsport. Alta Street and Del Perro offer purchasable apartment garages. vMenu assets stay temporary.'],
 ];
 
 function renderWelcome() {

@@ -11,7 +11,7 @@ end)
 
 RegisterCommand('ofm_status', function(src)
     if src ~= 0 then return end
-    print('[ofm_session] Legacy Qbox foundation running; owned vehicles, property garages and all four launch activities are installed.')
+    print('[ofm_session] Legacy Qbox foundation running; supply vendors, owned vehicles, property garages and all four launch activities are installed.')
 end, true)
 
 CreateThread(function()

@@ -39,6 +39,7 @@ jobs:
           lua5.4 tests/pursuit_state.test.lua legacy-resources/ofm_activities/server/pursuit_state.lua
           lua5.4 tests/vehicle_rules.test.lua legacy-resources/ofm_vehicles/server/rules.lua
           lua5.4 tests/property_rules.test.lua legacy-resources/ofm_properties/server/rules.lua
+          lua5.4 tests/vendor_rules.test.lua legacy-resources/ofm_vendors/server/rules.lua legacy-resources/ofm_vendors/config.lua legacy-resources/ox_inventory/data/shops.lua
       - name: Validate handbook browser code
         run: node --check legacy-resources/ofm_hub/web/app.js
       - name: Egg generation stays reproducible

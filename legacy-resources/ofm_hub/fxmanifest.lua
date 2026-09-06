@@ -22,4 +22,4 @@ server_scripts {
     'server.lua',
 }
 
-dependencies { 'qbx_core', 'ox_lib', 'oxmysql', 'ofm_activities', 'ofm_vehicles' }
+dependencies { 'qbx_core', 'ox_lib', 'oxmysql', 'ofm_activities', 'ofm_vendors', 'ofm_vehicles' }
