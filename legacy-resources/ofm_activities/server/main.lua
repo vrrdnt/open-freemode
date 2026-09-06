@@ -12,6 +12,9 @@ local manager = ActivityState.new({
     end,
 })
 OFMActivityManager = manager
+exports('IsPlayerActive', function(source)
+    return manager:get(source) ~= nil
+end)
 local raceRuns = {}
 local raceQueue = ActivityQueue.new({
     minimum = config.race.publicMinimumPlayers,

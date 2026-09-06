@@ -16,9 +16,9 @@ This contract prevents four separate scripts from fighting over death, inventory
 
 ## Milestones
 
-### 1. Foundation and owned vehicles
+### 1. Foundation and owned vehicles — first playable slice implemented, client validation pending
 
-Complete the client walkthrough, then add a Qbox-compatible garage and vehicle shop. vMenu cars remain temporary; purchases create persistent `player_vehicles` records. LSC-style modification needs a shop/resource that validates ownership and stores vehicle properties. Property garages can initially be activated locations tied to a character before a full housing system is chosen.
+Premium Deluxe Motorsport sells three server-priced starter cars from bank funds and records each request once. Purchases create persistent Qbox `player_vehicles` records stored at Legion Square. That garage retrieves only the current character's vehicles, recovers vehicles left marked out after a restart, and saves health and dirt when storing. Burton Customs validates the driver and Qbox vehicle identity on the server before charging for repairs, performance upgrades or resprays and saving the resulting properties. vMenu and activity cars have no owned vehicle identity, so they cannot enter this persistent loop. Property garages can initially be activated locations tied to a character before a full housing system is chosen.
 
 ### 2. Pizza delivery vertical slice — implemented, client validation pending
 

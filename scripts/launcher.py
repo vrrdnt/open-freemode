@@ -140,6 +140,8 @@ def configure(data, env):
         'setr inventory:framework "qbx"',
         'setr inventory:weaponmismatch false',
         'setr qbx:enableBridge true',
+        'set qbx:enableVehiclePersistence true',
+        'set qbx:vehiclePersistenceType "semi"',
         'setr voice_useNativeAudio true',
         'setr voice_useSendingRangeOnly false',
         'setr voice_defaultCycle "F11"',
@@ -158,6 +160,7 @@ def configure(data, env):
         'ensure pma-voice',
         'ensure vMenu',
         'ensure ofm_activities',
+        'ensure ofm_vehicles',
         'ensure ofm_session',
     ]
     private_write(data / 'config/database.json', json.dumps(options, ensure_ascii=True) + '\n')

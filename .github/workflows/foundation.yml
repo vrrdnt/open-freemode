@@ -37,6 +37,7 @@ jobs:
           lua5.4 tests/race_queue.test.lua legacy-resources/ofm_activities/server/matchmaking.lua
           lua5.4 tests/combat_score.test.lua legacy-resources/ofm_activities/server/combat_score.lua
           lua5.4 tests/pursuit_state.test.lua legacy-resources/ofm_activities/server/pursuit_state.lua
+          lua5.4 tests/vehicle_rules.test.lua legacy-resources/ofm_vehicles/server/rules.lua
       - name: Egg generation stays reproducible
         run: |
           npm run egg

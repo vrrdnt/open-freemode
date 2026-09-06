@@ -33,7 +33,7 @@ try {
     docker('run', '--rm', ...args, image, 'python3', '/opt/open-freemode/scripts/launcher.py', 'migrate');
   }
   const sql = query => docker('exec', db, 'sh', '-c', 'exec mariadb -N -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE" -e "$1"', 'query', query);
-  assert.equal(sql("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='ofm_test' AND table_name IN ('players','playerskins','player_outfits','bans','player_groups','ofm_activity_results','ofm_race_results','ofm_match_results')"), '8');
+  assert.equal(sql("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='ofm_test' AND table_name IN ('players','playerskins','player_outfits','bans','player_groups','ofm_activity_results','ofm_race_results','ofm_match_results','ofm_vehicle_purchases')"), '9');
   sql("INSERT INTO playerskins (citizenid,model,skin) VALUES ('fixture','mp_m_freemode_01','{}')");
   sql("INSERT INTO players (citizenid,license,name,money,job,position,metadata) VALUES ('activity-fixture','license:fixture','Fixture','{}','{}','{}','{}')");
   sql("INSERT INTO ofm_activity_results (result_id,citizenid,activity,payout) VALUES ('fixture-result','activity-fixture','pizza',750)");
@@ -47,11 +47,17 @@ try {
   sql("INSERT INTO ofm_match_results (result_id,match_id,citizenid,activity,team,kills,deaths,won,payout) VALUES ('tdm-result','terminal-clash:fixture','activity-fixture','terminal_clash','red',15,4,1,1200)");
   sql("INSERT IGNORE INTO ofm_match_results (result_id,match_id,citizenid,activity,team,kills,deaths,won,payout) VALUES ('tdm-result','terminal-clash:fixture','activity-fixture','terminal_clash','blue',0,99,0,1)");
   assert.equal(sql("SELECT CONCAT(COUNT(*),':',team,':',kills,':',deaths,':',won,':',payout) FROM ofm_match_results WHERE result_id='tdm-result' GROUP BY team,kills,deaths,won,payout"), '1:red:15:4:1:1200', 'TDM result was not idempotent');
+  sql("INSERT INTO player_vehicles (license,citizenid,vehicle,hash,mods,plate,state,garage) VALUES ('license:fixture','activity-fixture','blista','-344943009','{\"plate\":\"OFMTEST\"}','OFMTEST',1,'legion_square')");
+  sql("INSERT INTO ofm_vehicle_purchases (purchase_id,citizenid,vehicle_id,model,price) SELECT 'vehicle-fixture','activity-fixture',id,'blista',18000 FROM player_vehicles WHERE plate='OFMTEST'");
+  sql("INSERT IGNORE INTO ofm_vehicle_purchases (purchase_id,citizenid,vehicle_id,model,price) SELECT 'vehicle-fixture','activity-fixture',id,'sultan',1 FROM player_vehicles WHERE plate='OFMTEST'");
+  assert.equal(sql("SELECT CONCAT(COUNT(*),':',model,':',price) FROM ofm_vehicle_purchases WHERE purchase_id='vehicle-fixture' GROUP BY model,price"), '1:blista:18000', 'Vehicle purchase was not idempotent');
   sql("DELETE FROM players WHERE citizenid='activity-fixture'");
   assert.equal(sql("SELECT COUNT(*) FROM ofm_activity_results WHERE result_id='fixture-result'"), '0', 'Activity result did not follow character deletion');
   assert.equal(sql("SELECT COUNT(*) FROM ofm_race_results WHERE result_id='race-result'"), '0', 'Race result did not follow character deletion');
   assert.equal(sql("SELECT COUNT(*) FROM ofm_race_results WHERE result_id='public-race-result'"), '0', 'Public race result did not follow character deletion');
   assert.equal(sql("SELECT COUNT(*) FROM ofm_match_results WHERE result_id='tdm-result'"), '0', 'TDM result did not follow character deletion');
+  assert.equal(sql("SELECT COUNT(*) FROM ofm_vehicle_purchases WHERE purchase_id='vehicle-fixture'"), '0', 'Vehicle purchase did not follow character deletion');
+  assert.equal(sql("SELECT COUNT(*) FROM player_vehicles WHERE plate='OFMTEST'"), '0', 'Owned vehicle did not follow character deletion');
   const game = docker('run', '-dit', ...args, '--publish', '127.0.0.1::30120/tcp', image);
   containers.push(game);
   let logs = '';
@@ -71,11 +77,12 @@ try {
     assert.ok(logs.includes('[ofm_session] Legacy foundation started.'), 'Legacy resource readiness missing');
     assert.ok(logs.includes('[ofm_activities] Terminal Clash TDM ready.'), 'TDM readiness missing');
     assert.ok(logs.includes('[ofm_activities] City Escape cops and robbers ready.'), 'Pursuit readiness missing');
+    assert.ok(logs.includes('[ofm_vehicles] Owned vehicle dealer, garage and modification service ready.'), 'Owned vehicle readiness missing');
     assert.ok(!/SCRIPT ERROR|Error loading script|Failed to load script|Error parsing script/.test(logs), 'Resource error; inspect private test log');
     const endpoint = docker('port', game, '30120/tcp');
     const response = await (await fetch(`http://${endpoint}/info.json`)).text();
     const info = JSON.parse(response);
-    for (const resource of ['chat','spawnmanager','sessionmanager','hardcap','baseevents','qbx_core','qbx_vehicles','ox_lib','ox_inventory','oxmysql','illenium-appearance','pma-voice','vMenu','ofm_activities','ofm_session']) {
+    for (const resource of ['chat','spawnmanager','sessionmanager','hardcap','baseevents','qbx_core','qbx_vehicles','ox_lib','ox_inventory','oxmysql','illenium-appearance','pma-voice','vMenu','ofm_activities','ofm_vehicles','ofm_session']) {
       assert.ok(info.resources.includes(resource), 'Missing resource: ' + resource);
     }
     assert.ok(!response.includes(password) && !response.includes(key), 'Info endpoint exposed a credential');

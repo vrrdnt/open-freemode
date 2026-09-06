@@ -1,0 +1,45 @@
+return {
+    dealer = {
+        name = 'Premium Deluxe Motorsport',
+        coords = { x = -56.78, y = -1096.67, z = 26.42 },
+        radius = 7.0,
+        catalog = {
+            { id = 'blista', model = 'blista', label = 'Dinka Blista', price = 18000 },
+            { id = 'dominator', model = 'dominator', label = 'Vapid Dominator', price = 35000 },
+            { id = 'sultan', model = 'sultan', label = 'Karin Sultan', price = 45000 },
+        },
+    },
+    garage = {
+        id = 'legion_square',
+        name = 'Legion Square Garage',
+        coords = { x = 215.80, y = -810.10, z = 30.73 },
+        spawn = { x = 229.20, y = -800.00, z = 30.57, w = 157.0 },
+        radius = 8.0,
+        spawnClearRadius = 3.0,
+    },
+    modshop = {
+        name = 'Burton Customs',
+        coords = { x = -337.20, y = -136.90, z = 39.01 },
+        radius = 8.0,
+        upgrades = {
+            { id = 'repair', label = 'Full repair', price = 500, props = {
+                engineHealth = 1000.0, bodyHealth = 1000.0, tankHealth = 1000.0,
+            } },
+            { id = 'engine_1', label = 'Engine upgrade 1', price = 2500, props = { modEngine = 0 } },
+            { id = 'engine_2', label = 'Engine upgrade 2', price = 5000, props = { modEngine = 1 } },
+            { id = 'engine_3', label = 'Engine upgrade 3', price = 9000, props = { modEngine = 2 } },
+            { id = 'engine_4', label = 'Engine upgrade 4', price = 14000, props = { modEngine = 3 } },
+            { id = 'brakes_1', label = 'Street brakes', price = 1500, props = { modBrakes = 0 } },
+            { id = 'brakes_2', label = 'Sport brakes', price = 3000, props = { modBrakes = 1 } },
+            { id = 'brakes_3', label = 'Race brakes', price = 5000, props = { modBrakes = 2 } },
+            { id = 'transmission_1', label = 'Street transmission', price = 2000, props = { modTransmission = 0 } },
+            { id = 'transmission_2', label = 'Sport transmission', price = 4000, props = { modTransmission = 1 } },
+            { id = 'transmission_3', label = 'Race transmission', price = 6500, props = { modTransmission = 2 } },
+            { id = 'turbo', label = 'Turbo tuning', price = 8000, props = { modTurbo = true } },
+            { id = 'paint_black', label = 'Black respray', price = 1000, props = { color1 = 0, color2 = 0 } },
+            { id = 'paint_white', label = 'White respray', price = 1000, props = { color1 = 111, color2 = 111 } },
+            { id = 'paint_red', label = 'Red respray', price = 1000, props = { color1 = 27, color2 = 27 } },
+            { id = 'paint_blue', label = 'Blue respray', price = 1000, props = { color1 = 64, color2 = 64 } },
+        },
+    },
+}

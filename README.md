@@ -22,10 +22,11 @@ The foundation works today:
 - solo and 2–8 player Airport Dash racing with an ordered starting grid, synchronized starts, brief launch ghosting, isolated matches, finish-order payouts and persistent rankings;
 - 2–10 player Terminal Clash TDM with balanced teams, isolated rounds, temporary loadouts, score-limit victory, match respawns and persistent one-time results;
 - 2–6 player City Escape cops and robbers with one getaway driver, temporary pursuit vehicles, ordered escape checkpoints, police respawns and five-minute rounds;
+- server-priced owned vehicle purchases at Premium Deluxe Motorsport, persistent Legion Square storage and retrieval, and ownership-checked Burton repairs and upgrades;
 - tester admission through the `ofm.join` ACE permission;
 - immutable resource bundles suitable for Pelican and GHCR updates.
 
-Pizza delivery, both Airport Dash modes, Terminal Clash TDM and City Escape are ready for real-client gameplay passes. Owned-vehicle shops/garages and property gameplay remain upcoming milestones.
+Pizza delivery, both Airport Dash modes, Terminal Clash TDM, City Escape and the owned-vehicle loop are ready for real-client gameplay passes. Property gameplay remains an upcoming milestone.
 
 Start with [the fresh Pelican installation guide](docs/install.md). No backup import, copied server directory or node-side image build is required.
 
