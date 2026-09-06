@@ -13,6 +13,7 @@ Every activity resource will use the same lifecycle:
 5. **Restore**: remove temporary equipment, return the player to the shared world and recover correctly after death, disconnect or resource restart.
 
 This contract prevents four separate scripts from fighting over death, inventory, vehicles, routing buckets and rewards.
+The shared manager publishes the active mode through a server-owned player state bag, so freemode UI, inventory locks and respawning all see the same lifecycle and clients cannot author that flag themselves.
 
 ## Milestones
 

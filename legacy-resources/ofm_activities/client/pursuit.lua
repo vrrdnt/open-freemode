@@ -115,8 +115,6 @@ local function placeInVehicle(data, frozen)
 end
 
 local function setPursuitState(enabled)
-    LocalPlayer.state:set('ofmActivity', enabled and 'pursuit' or nil, true)
-    LocalPlayer.state:set('invBusy', enabled, true)
     exports.ox_inventory:weaponWheel(true)
     if enabled then
         local group = teamGroup(pursuit.team)

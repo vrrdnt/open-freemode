@@ -68,8 +68,6 @@ local function placePlayer(spawn, frozen)
 end
 
 local function setCombatState(enabled)
-    LocalPlayer.state:set('ofmActivity', enabled and 'tdm' or nil, true)
-    LocalPlayer.state:set('invBusy', enabled, true)
     exports.ox_inventory:weaponWheel(true)
     if enabled then
         local group = teamGroup(tdm.team)

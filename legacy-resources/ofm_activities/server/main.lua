@@ -10,6 +10,14 @@ local manager = ActivityState.new({
     token = function(source, kind)
         return ('%s:%d:%d:%06d'):format(kind, source, os.time(), math.random(0, 999999))
     end,
+    onChange = function(source, kind, previousKind)
+        if not GetPlayerName(source) then return end
+        local state = Player(source).state
+        state:set('ofmActivity', kind, true)
+        local combat = kind == 'tdm' or kind == 'pursuit'
+        local wasCombat = previousKind == 'tdm' or previousKind == 'pursuit'
+        if combat or wasCombat then state:set('invBusy', combat, true) end
+    end,
 })
 OFMActivityManager = manager
 exports('IsPlayerActive', function(source)

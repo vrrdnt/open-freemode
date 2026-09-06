@@ -25,6 +25,7 @@ function Manager:reserve(source, kind)
         nextIndex = 1,
     }
     self.sessions[source] = session
+    self.onChange(source, session.kind, nil)
     return snapshot(session)
 end
 
@@ -33,6 +34,7 @@ function ActivityState.new(options)
         sessions = {},
         now = assert(options.now),
         token = assert(options.token),
+        onChange = options.onChange or function() end,
     }, Manager)
 end
 
@@ -51,6 +53,7 @@ function Manager:start(source, spec)
         lastCompletedAt = self.now() - (spec.minimumStopSeconds or 0),
     }
     self.sessions[source] = session
+    self.onChange(source, session.kind, nil)
     return snapshot(session)
 end
 
@@ -87,6 +90,7 @@ function Manager:advance(source, token, index, distance)
 
     if session.nextIndex > #session.stops then
         self.sessions[source] = nil
+        self.onChange(source, nil, session.kind)
         return {
             completed = true,
             kind = session.kind,
@@ -102,6 +106,7 @@ end
 function Manager:cancel(source)
     local session = self.sessions[source]
     self.sessions[source] = nil
+    if session then self.onChange(source, nil, session.kind) end
     return session
 end
 
